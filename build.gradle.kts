@@ -23,6 +23,13 @@ checkstyle {
     maxErrors = 0 // Fail the build if any errors are found
 }
 
+// ensure checkstyle tasks get the suppressions property
+tasks.withType<Checkstyle>().configureEach {
+    configProperties?.set("checkstyle.suppressions.file",
+        file("$rootDir/config/checkstyle/suppressions.xml").absolutePath
+    )
+}
+
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
