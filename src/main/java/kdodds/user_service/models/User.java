@@ -28,7 +28,7 @@ public class User {
     private String email;
 
     @JsonIgnore
-    private String password_hash;
+    private String passwordHash;
 
     @JsonProperty("status")
     private String status; // active, inactive, banned, pending, deleted, etc.

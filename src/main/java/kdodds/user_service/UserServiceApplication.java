@@ -14,7 +14,8 @@ public class UserServiceApplication {
      *
      * @param args Args
      */
-    static void main(String[] args) {
+    @SuppressWarnings("UnnecessaryModifier")
+    public static void main(String[] args) {
         SpringApplication.run(UserServiceApplication.class, args);
     }
 

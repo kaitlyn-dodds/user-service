@@ -26,7 +26,7 @@ public class UserService {
                    .username("warlordbattlehound4848")
                    .email("somewhere@someplace.com")
                    .status("active")
-                   .password_hash("password")
+                   .passwordHash("password")
                    .updatedAt(Instant.now())
                    .createdAt(Instant.now())
                    .build();
