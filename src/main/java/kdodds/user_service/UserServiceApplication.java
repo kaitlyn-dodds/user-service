@@ -14,7 +14,7 @@ public class UserServiceApplication {
      *
      * @param args Args
      */
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(UserServiceApplication.class, args);
     }
 
