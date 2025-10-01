@@ -1,8 +1,7 @@
-package kdodds.user_service.models;
+package kdodds.user_service.errors.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
@@ -13,21 +12,8 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
-public class UserProfile {
-
-    @JsonProperty("id")
-    private String id;
-
-    @JsonProperty("user_id")
-    private String userId;
-
-    @JsonProperty("first_name")
-    private String firstName;
-
-    @JsonProperty("last_name")
-    private String lastName;
-
-    @JsonProperty("phone_number")
-    private String phoneNumber;
-
+public class ErrorResponse {
+    private int status;
+    private String error;
+    private String message;
 }
