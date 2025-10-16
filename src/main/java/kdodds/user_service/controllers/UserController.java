@@ -2,7 +2,9 @@ package kdodds.user_service.controllers;
 
 import kdodds.user_service.errors.models.exceptions.InvalidUserIdException;
 import kdodds.user_service.models.CompleteUserData;
+import kdodds.user_service.models.UserAddress;
 import kdodds.user_service.models.UserProfile;
+import kdodds.user_service.models.responses.UserAddressesResponse;
 import kdodds.user_service.models.responses.UserProfileResponse;
 import kdodds.user_service.models.responses.UserResponse;
 import kdodds.user_service.services.UserService;
@@ -12,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Handles all user related endpoints.
@@ -61,7 +65,8 @@ public class UserController {
      * @param userId Unique user id of the user.
      * @return UserProfile object.
      */
-    public ResponseEntity<UserProfileResponse> getUserProfileByUserId(String userId) {
+    @GetMapping("/users/{userId}/")
+    public ResponseEntity<UserProfileResponse> getUserProfileByUserId(@PathVariable String userId) {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
         }
@@ -77,6 +82,23 @@ public class UserController {
                 .profileImageUrl(userProfile.getProfileImageUrl())
                 .createdAt(userProfile.getCreatedAt())
                 .updatedAt(userProfile.getUpdatedAt())
+                .build(),
+            HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/users/{userId}/addresses")
+    public ResponseEntity<UserAddressesResponse> getUserAddressesByUserId(@PathVariable String userId) {
+        if (userId == null || userId.isEmpty()) {
+            throw new InvalidUserIdException();
+        }
+
+        List<UserAddress> addresses = userService.getUserAddressesByUserId(userId);
+
+        return new ResponseEntity<>(
+            UserAddressesResponse.builder()
+                .userId(userId)
+                .addresses(addresses)
                 .build(),
             HttpStatus.OK
         );
