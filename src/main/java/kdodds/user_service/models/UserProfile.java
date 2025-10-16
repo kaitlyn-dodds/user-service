@@ -8,15 +8,14 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
+
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @Builder
 public class UserProfile {
-
-    @JsonProperty("id")
-    private String id;
 
     @JsonProperty("user_id")
     private String userId;
@@ -29,5 +28,14 @@ public class UserProfile {
 
     @JsonProperty("phone_number")
     private String phoneNumber;
+
+    @JsonProperty("profile_image_url")
+    private String profileImageUrl;
+
+    @JsonProperty("created_at")
+    private Instant createdAt;
+
+    @JsonProperty("updated_at")
+    private Instant updatedAt;
 
 }

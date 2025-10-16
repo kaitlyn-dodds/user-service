@@ -20,10 +20,10 @@ public class UserExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
         ErrorResponse error = ErrorResponse.builder()
-            .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-            .message(ex.getMessage())
-            .status(HttpStatus.NOT_FOUND.value())
-            .build();
+                                           .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                                           .message(ex.getMessage())
+                                           .status(HttpStatus.NOT_FOUND.value())
+                                           .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -37,10 +37,10 @@ public class UserExceptionHandler {
     @ExceptionHandler(InvalidUserDataException.class)
     public ResponseEntity<ErrorResponse> handleInvalidUserDataException(InvalidUserDataException ex) {
         ErrorResponse response = ErrorResponse.builder()
-            .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-            .message(ex.getMessage())
-            .status(HttpStatus.BAD_REQUEST.value())
-            .build();
+                                              .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                                              .message(ex.getMessage())
+                                              .status(HttpStatus.BAD_REQUEST.value())
+                                              .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -54,10 +54,10 @@ public class UserExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         ErrorResponse response = ErrorResponse.builder()
-            .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-            .message(ex.getMessage())
-            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .build();
+                                              .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                                              .message(ex.getMessage())
+                                              .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                                              .build();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }

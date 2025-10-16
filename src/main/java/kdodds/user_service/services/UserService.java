@@ -2,6 +2,7 @@ package kdodds.user_service.services;
 
 import kdodds.user_service.errors.models.exceptions.InvalidUserDataException;
 import kdodds.user_service.errors.models.exceptions.UserNotFoundException;
+import kdodds.user_service.models.CompleteUserData;
 import kdodds.user_service.models.User;
 import kdodds.user_service.models.UserAddress;
 import kdodds.user_service.models.UserProfile;
@@ -12,6 +13,22 @@ import java.util.List;
 
 @Service
 public class UserService {
+
+    /**
+     * Gets all user data for a given user id.
+     *
+     * @param userId The unique user id of the user.
+     * @return A CompleteUserData object.
+     */
+    public CompleteUserData getCompleteUserDataByUserId(String userId) {
+        // TODO: would query db w/ single query w/ joins for user, profile, addresses
+
+        return CompleteUserData.builder()
+                               .user(getUserByUserId(userId))
+                               .userProfile(getUserProfileByUserId(userId))
+                               .userAddresses(getUserAddressesByUserId(userId))
+                               .build();
+    }
 
     /**
      * User data for a given user id. Will throw an exception for a null or missing user id.
@@ -26,14 +43,14 @@ public class UserService {
         }
 
         return User.builder()
-           .id(userId)
-           .username("magicalwizardman4848")
-           .email("somewhere@someplace.com")
-           .status("active")
-           .passwordHash("password")
-           .updatedAt(Instant.now())
-           .createdAt(Instant.now())
-           .build();
+                   .id(userId)
+                   .username("magicalwizardman4848")
+                   .email("somewhere@someplace.com")
+                   .status("active")
+                   .passwordHash("password")
+                   .updatedAt(Instant.now())
+                   .createdAt(Instant.now())
+                   .build();
     }
 
     /**
@@ -48,11 +65,11 @@ public class UserService {
         }
 
         return UserProfile.builder()
-            .userId(userId)
-            .firstName("Tom")
-            .lastName("Bombadil")
-            .phoneNumber("5746857273733")
-            .build();
+                          .userId(userId)
+                          .firstName("Tom")
+                          .lastName("Bombadil")
+                          .phoneNumber("5746857273733")
+                          .build();
     }
 
     /**
@@ -68,14 +85,14 @@ public class UserService {
 
         return List.of(
             UserAddress.builder()
-                .userId(userId)
-                .addressLine1("1717 Old Forest Rd")
-                .addressType("Home")
-                .city("Old Forest")
-                .state("Old Forest")
-                .country("Middle Earth")
-                .zipCode("12345")
-               .build()
+                       .userId(userId)
+                       .addressLine1("1717 Old Forest Rd")
+                       .addressType("Home")
+                       .city("Old Forest")
+                       .state("Old Forest")
+                       .country("Middle Earth")
+                       .zipCode("12345")
+                       .build()
         );
     }
 

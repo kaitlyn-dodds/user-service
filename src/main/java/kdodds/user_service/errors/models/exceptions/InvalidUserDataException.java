@@ -12,4 +12,5 @@ public class InvalidUserDataException extends RuntimeException {
     public InvalidUserDataException() {
         super("Invalid null or empty user id");
     }
+
 }
