@@ -1,6 +1,6 @@
 package kdodds.user_service.services;
 
-import kdodds.user_service.errors.models.exceptions.InvalidUserDataException;
+import kdodds.user_service.errors.models.exceptions.InvalidUserIdException;
 import kdodds.user_service.errors.models.exceptions.UserNotFoundException;
 import kdodds.user_service.models.CompleteUserData;
 import kdodds.user_service.models.User;
@@ -24,10 +24,10 @@ public class UserService {
         // TODO: would query db w/ single query w/ joins for user, profile, addresses
 
         return CompleteUserData.builder()
-                               .user(getUserByUserId(userId))
-                               .userProfile(getUserProfileByUserId(userId))
-                               .userAddresses(getUserAddressesByUserId(userId))
-                               .build();
+            .user(getUserByUserId(userId))
+            .userProfile(getUserProfileByUserId(userId))
+            .userAddresses(getUserAddressesByUserId(userId))
+            .build();
     }
 
     /**
@@ -39,18 +39,18 @@ public class UserService {
      */
     public User getUserByUserId(String userId) {
         if (userId == null || userId.isEmpty()) {
-            throw new InvalidUserDataException();
+            throw new InvalidUserIdException();
         }
 
         return User.builder()
-                   .id(userId)
-                   .username("magicalwizardman4848")
-                   .email("somewhere@someplace.com")
-                   .status("active")
-                   .passwordHash("password")
-                   .updatedAt(Instant.now())
-                   .createdAt(Instant.now())
-                   .build();
+            .id(userId)
+            .username("magicalwizardman4848")
+            .email("somewhere@someplace.com")
+            .status("active")
+            .passwordHash("password")
+            .updatedAt(Instant.now())
+            .createdAt(Instant.now())
+            .build();
     }
 
     /**
@@ -61,15 +61,15 @@ public class UserService {
      */
     public UserProfile getUserProfileByUserId(String userId) {
         if (userId == null || userId.isEmpty()) {
-            throw new InvalidUserDataException();
+            throw new InvalidUserIdException();
         }
 
         return UserProfile.builder()
-                          .userId(userId)
-                          .firstName("Tom")
-                          .lastName("Bombadil")
-                          .phoneNumber("5746857273733")
-                          .build();
+            .userId(userId)
+            .firstName("Tom")
+            .lastName("Bombadil")
+            .phoneNumber("5746857273733")
+            .build();
     }
 
     /**
@@ -80,19 +80,19 @@ public class UserService {
      */
     public List<UserAddress> getUserAddressesByUserId(String userId) {
         if (userId == null || userId.isEmpty()) {
-            throw new InvalidUserDataException();
+            throw new InvalidUserIdException();
         }
 
         return List.of(
             UserAddress.builder()
-                       .userId(userId)
-                       .addressLine1("1717 Old Forest Rd")
-                       .addressType("Home")
-                       .city("Old Forest")
-                       .state("Old Forest")
-                       .country("Middle Earth")
-                       .zipCode("12345")
-                       .build()
+                .userId(userId)
+                .addressLine1("1717 Old Forest Rd")
+                .addressType("Home")
+                .city("Old Forest")
+                .state("Old Forest")
+                .country("Middle Earth")
+                .zipCode("12345")
+                .build()
         );
     }
 

@@ -67,14 +67,14 @@ public class TestDataFactory {
      */
     public static CompleteUserData createTestCompleteUserData(String userId) {
         return CompleteUserData.builder()
-                               .user(TestDataFactory.createTestUser(userId))
-                               .userProfile(TestDataFactory.createTestUserProfile(userId))
-                               .userAddresses(
-                                   List.of(
-                                       TestDataFactory.createTestUserAddress(userId)
-                                   )
-                               )
-                               .build();
+            .user(TestDataFactory.createTestUser(userId))
+            .userProfile(TestDataFactory.createTestUserProfile(userId))
+            .userAddresses(
+                List.of(
+                    TestDataFactory.createTestUserAddress(userId)
+                )
+            )
+            .build();
     }
 
     /**
@@ -85,14 +85,14 @@ public class TestDataFactory {
      */
     public static User createTestUser(String userId) {
         return User.builder()
-                   .id(userId)
-                   .email(TestDataFactory.TEST_USER_EMAIL)
-                   .passwordHash(TestDataFactory.TEST_USER_PASSWORD)
-                   .status("active")
-                   .username(TestDataFactory.TEST_USER_USERNAME)
-                   .createdAt(Instant.now())
-                   .updatedAt(Instant.now())
-                   .build();
+            .id(userId)
+            .email(TestDataFactory.TEST_USER_EMAIL)
+            .passwordHash(TestDataFactory.TEST_USER_PASSWORD)
+            .status("active")
+            .username(TestDataFactory.TEST_USER_USERNAME)
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
+            .build();
     }
 
     /**
@@ -103,14 +103,14 @@ public class TestDataFactory {
      */
     public static UserProfile createTestUserProfile(String userId) {
         return UserProfile.builder()
-                          .userId(userId)
-                          .firstName(TestDataFactory.TEST_USER_FIRST_NAME)
-                          .lastName(TestDataFactory.TEST_USER_LAST_NAME)
-                          .phoneNumber(TestDataFactory.TEST_USER_PHONE_NUMBER)
-                          .profileImageUrl(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL)
-                          .createdAt(Instant.now())
-                          .updatedAt(Instant.now())
-                          .build();
+            .userId(userId)
+            .firstName(TestDataFactory.TEST_USER_FIRST_NAME)
+            .lastName(TestDataFactory.TEST_USER_LAST_NAME)
+            .phoneNumber(TestDataFactory.TEST_USER_PHONE_NUMBER)
+            .profileImageUrl(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL)
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
+            .build();
     }
 
     /**
@@ -121,16 +121,17 @@ public class TestDataFactory {
      */
     public static UserAddress createTestUserAddress(String userId) {
         return UserAddress.builder()
-                          .id(generateRandomUuid())
-                          .userId(userId)
-                          .addressLine1(TestDataFactory.TEST_USER_ADDRESS_LINE_1)
-                          .addressType(TestDataFactory.TEST_USER_ADDRESS_TYPE)
-                          .city(TestDataFactory.TEST_USER_CITY)
-                          .state(TestDataFactory.TEST_USER_STATE)
-                          .zipCode(TestDataFactory.TEST_USER_ZIP_CODE)
-                          .country(TestDataFactory.TEST_USER_COUNTRY)
-                          .createdAt(Instant.now())
-                          .updatedAt(Instant.now())
-                          .build();
+            .id(generateRandomUuid())
+            .userId(userId)
+            .addressLine1(TestDataFactory.TEST_USER_ADDRESS_LINE_1)
+            .addressType(TestDataFactory.TEST_USER_ADDRESS_TYPE)
+            .city(TestDataFactory.TEST_USER_CITY)
+            .state(TestDataFactory.TEST_USER_STATE)
+            .zipCode(TestDataFactory.TEST_USER_ZIP_CODE)
+            .country(TestDataFactory.TEST_USER_COUNTRY)
+            .createdAt(Instant.now())
+            .updatedAt(Instant.now())
+            .build();
     }
+
 }

@@ -1,7 +1,9 @@
 package kdodds.user_service.controllers;
 
-import kdodds.user_service.errors.models.exceptions.InvalidUserDataException;
+import kdodds.user_service.errors.models.exceptions.InvalidUserIdException;
 import kdodds.user_service.models.CompleteUserData;
+import kdodds.user_service.models.UserProfile;
+import kdodds.user_service.models.responses.UserProfileResponse;
 import kdodds.user_service.models.responses.UserResponse;
 import kdodds.user_service.services.UserService;
 import lombok.AllArgsConstructor;
@@ -31,24 +33,51 @@ public class UserController {
     public ResponseEntity<UserResponse> getUserByUserId(@PathVariable String userId) {
         // check for null or invalid user id
         if (userId == null || userId.isEmpty()) {
-            throw new InvalidUserDataException();
+            throw new InvalidUserIdException();
         }
 
         CompleteUserData userData = userService.getCompleteUserDataByUserId(userId);
 
         return new ResponseEntity<>(
             UserResponse.builder()
-                        .userId(userData.getUser().getId())
-                        .username(userData.getUser().getUsername())
-                        .email(userData.getUser().getEmail())
-                        .createdAt(userData.getUser().getCreatedAt())
-                        .updatedAt(userData.getUser().getUpdatedAt())
-                        .firstName(userData.getUserProfile().getFirstName())
-                        .lastName(userData.getUserProfile().getLastName())
-                        .phoneNumber(userData.getUserProfile().getPhoneNumber())
-                        .profileImageUrl(userData.getUserProfile().getProfileImageUrl())
-                        .addresses(userData.getUserAddresses())
-                        .build(),
+                .userId(userData.getUser().getId())
+                .username(userData.getUser().getUsername())
+                .email(userData.getUser().getEmail())
+                .createdAt(userData.getUser().getCreatedAt())
+                .updatedAt(userData.getUser().getUpdatedAt())
+                .firstName(userData.getUserProfile().getFirstName())
+                .lastName(userData.getUserProfile().getLastName())
+                .phoneNumber(userData.getUserProfile().getPhoneNumber())
+                .profileImageUrl(userData.getUserProfile().getProfileImageUrl())
+                .addresses(userData.getUserAddresses())
+                .build(),
+            HttpStatus.OK
+        );
+    }
+
+    /**
+     * Get user profile for a given user id.
+     *
+     * @param userId Unique user id of the user.
+     * @return UserProfile object.
+     */
+    public ResponseEntity<UserProfileResponse> getUserProfileByUserId(String userId) {
+        if (userId == null || userId.isEmpty()) {
+            throw new InvalidUserIdException();
+        }
+
+        UserProfile userProfile = userService.getUserProfileByUserId(userId);
+
+        return new ResponseEntity<>(
+            UserProfileResponse.builder()
+                .userId(userProfile.getUserId())
+                .firstName(userProfile.getFirstName())
+                .lastName(userProfile.getLastName())
+                .phoneNumber(userProfile.getPhoneNumber())
+                .profileImageUrl(userProfile.getProfileImageUrl())
+                .createdAt(userProfile.getCreatedAt())
+                .updatedAt(userProfile.getUpdatedAt())
+                .build(),
             HttpStatus.OK
         );
     }
