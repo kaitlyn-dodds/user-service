@@ -7,7 +7,7 @@ plugins {
 
 group = "kdodds"
 version = "0.0.1-SNAPSHOT"
-description = "user_service"
+description = "Local user service"
 
 java {
     toolchain {
