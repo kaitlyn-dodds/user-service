@@ -65,7 +65,7 @@ public class UserController {
      * @param userId Unique user id of the user.
      * @return UserProfile object.
      */
-    @GetMapping("/users/{userId}/")
+    @GetMapping("/users/{userId}/profile")
     public ResponseEntity<UserProfileResponse> getUserProfileByUserId(@PathVariable String userId) {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
