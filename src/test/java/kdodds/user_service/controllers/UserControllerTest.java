@@ -217,13 +217,19 @@ public class UserControllerTest {
             TestDataFactory.TEST_USER_ADDRESS_TYPE,
             userAddressesResponse.getAddresses().getFirst().getAddressType()
         );
-        Assertions.assertEquals(TestDataFactory.TEST_USER_CITY, userAddressesResponse.getAddresses().getFirst().getCity());
-        Assertions.assertEquals(TestDataFactory.TEST_USER_STATE, userAddressesResponse.getAddresses().getFirst().getState());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_CITY,
+            userAddressesResponse.getAddresses().getFirst().getCity()
+        );
+        Assertions.assertEquals(TestDataFactory.TEST_USER_STATE,
+            userAddressesResponse.getAddresses().getFirst().getState()
+        );
         Assertions.assertEquals(
             TestDataFactory.TEST_USER_ZIP_CODE,
             userAddressesResponse.getAddresses().getFirst().getZipCode()
         );
-        Assertions.assertEquals(TestDataFactory.TEST_USER_COUNTRY, userAddressesResponse.getAddresses().getFirst().getCountry());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_COUNTRY,
+            userAddressesResponse.getAddresses().getFirst().getCountry()
+        );
         Assertions.assertNotNull(userAddressesResponse.getAddresses().getFirst().getCreatedAt());
         Assertions.assertNotNull(userAddressesResponse.getAddresses().getFirst().getUpdatedAt());
     }

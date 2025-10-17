@@ -87,6 +87,12 @@ public class UserController {
         );
     }
 
+    /**
+     * Get user addresses for a given user id.
+     *
+     * @param userId Unique user id of the user.
+     * @return UserAddressesResponse object.
+     */
     @GetMapping("/users/{userId}/addresses")
     public ResponseEntity<UserAddressesResponse> getUserAddressesByUserId(@PathVariable String userId) {
         if (userId == null || userId.isEmpty()) {
