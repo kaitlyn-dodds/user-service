@@ -4,6 +4,7 @@ import kdodds.userservice.models.CompleteUserData;
 import kdodds.userservice.models.User;
 import kdodds.userservice.models.UserAddress;
 import kdodds.userservice.models.UserProfile;
+import kdodds.userservice.models.responses.UserAddressResponse;
 
 import java.time.Instant;
 import java.util.List;
@@ -132,6 +133,18 @@ public class TestDataFactory {
             .createdAt(Instant.now())
             .updatedAt(Instant.now())
             .build();
+    }
+
+    /**
+     * Converts a list of UserAddress objects to a list of UserAddressResponse objects.
+     *
+     * @param addresses List of UserAddress objects.
+     * @return List of UserAddressResponse objects.
+     */
+    public static List<UserAddressResponse> convertUserAddressesToResponse(List<UserAddress> addresses) {
+        return addresses.stream()
+            .map(UserAddress::convert)
+            .toList();
     }
 
 }

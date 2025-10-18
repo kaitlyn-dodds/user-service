@@ -3,6 +3,7 @@ package kdodds.userservice.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,9 @@ public class JacksonConfig {
 
         // don't serialize null or empty values
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
+        // use snake case for JSON properties
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
         // necessary for java.time.* types
         mapper.registerModule(new JavaTimeModule());

@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import static kdodds.userservice.utils.TestDataFactory.convertUserAddressesToResponse;
+
 @SpringBootTest
 public class UserResponseTest {
 
@@ -22,6 +24,7 @@ public class UserResponseTest {
         CompleteUserData completeUserData = TestDataFactory.createTestCompleteUserData(
             TestDataFactory.TEST_USER_ID
         );
+
         UserResponse response = UserResponse.builder()
             .userId(completeUserData.getUser().getId())
             .username(completeUserData.getUser().getUsername())
@@ -32,7 +35,7 @@ public class UserResponseTest {
             .lastName(completeUserData.getUserProfile().getLastName())
             .phoneNumber(completeUserData.getUserProfile().getPhoneNumber())
             .profileImageUrl(completeUserData.getUserProfile().getProfileImageUrl())
-            .addresses(completeUserData.getUserAddresses())
+            .addresses(convertUserAddressesToResponse(completeUserData.getUserAddresses()))
             .build();
 
         String expectedJson = "{"
@@ -48,7 +51,7 @@ public class UserResponseTest {
             + "\"id\":\"" + completeUserData.getUserAddresses().getFirst().getId() + "\","
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"address_type\":\"" + TestDataFactory.TEST_USER_ADDRESS_TYPE + "\","
-            + "\"address_line1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
+            + "\"address_line_1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
             + "\"city\":\"" + TestDataFactory.TEST_USER_CITY + "\","
             + "\"state\":\"" + TestDataFactory.TEST_USER_STATE + "\","
             + "\"zip_code\":\"" + TestDataFactory.TEST_USER_ZIP_CODE + "\","
@@ -81,7 +84,7 @@ public class UserResponseTest {
             + "\"id\":\"addr-12345\","
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"address_type\":\"" + TestDataFactory.TEST_USER_ADDRESS_TYPE + "\","
-            + "\"address_line1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
+            + "\"address_line_1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
             + "\"city\":\"" + TestDataFactory.TEST_USER_CITY + "\","
             + "\"state\":\"" + TestDataFactory.TEST_USER_STATE + "\","
             + "\"zip_code\":\"" + TestDataFactory.TEST_USER_ZIP_CODE + "\","

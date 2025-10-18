@@ -3,7 +3,6 @@ package kdodds.userservice.models.responses;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import kdodds.userservice.models.UserAddress;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -20,6 +19,6 @@ public class UserAddressesResponse {
     private String userId;
 
     @JsonProperty("addresses")
-    private List<UserAddress> addresses;
+    private List<UserAddressResponse> addresses;
 
 }

@@ -8,37 +8,39 @@ import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 
 import java.time.Instant;
-import java.util.List;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Jacksonized
 @Data
 @Builder
-public class UserResponse {
+public class UserAddressResponse {
+
+    @JsonProperty("id")
+    private String id;
 
     @JsonProperty("user_id")
     private String userId;
 
-    @JsonProperty("username")
-    private String username;
+    @JsonProperty("address_type")
+    private String addressType; // billing, shipping, home, etc.
 
-    @JsonProperty("email")
-    private String email;
+    @JsonProperty("address_line_1")
+    private String addressLine1;
 
-    @JsonProperty("first_name")
-    private String firstName;
+    @JsonProperty("address_line_2")
+    private String addressLine2;
 
-    @JsonProperty("last_name")
-    private String lastName;
+    @JsonProperty("city")
+    private String city;
 
-    @JsonProperty("phone_number")
-    private String phoneNumber;
+    @JsonProperty("state")
+    private String state;
 
-    @JsonProperty("profile_image_url")
-    private String profileImageUrl;
+    @JsonProperty("zip_code")
+    private String zipCode;
 
-    @JsonProperty("addresses")
-    private List<UserAddressResponse> addresses;
+    @JsonProperty("country")
+    private String country;
 
     @JsonProperty("created_at")
     private Instant createdAt;

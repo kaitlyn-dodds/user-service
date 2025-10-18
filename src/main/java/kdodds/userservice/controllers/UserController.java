@@ -4,6 +4,7 @@ import kdodds.userservice.errors.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.models.CompleteUserData;
 import kdodds.userservice.models.UserAddress;
 import kdodds.userservice.models.UserProfile;
+import kdodds.userservice.models.responses.UserAddressResponse;
 import kdodds.userservice.models.responses.UserAddressesResponse;
 import kdodds.userservice.models.responses.UserProfileResponse;
 import kdodds.userservice.models.responses.UserResponse;
@@ -53,7 +54,7 @@ public class UserController {
                 .lastName(userData.getUserProfile().getLastName())
                 .phoneNumber(userData.getUserProfile().getPhoneNumber())
                 .profileImageUrl(userData.getUserProfile().getProfileImageUrl())
-                .addresses(userData.getUserAddresses())
+                .addresses(convertUserAddresses(userData.getUserAddresses()))
                 .build(),
             HttpStatus.OK
         );
@@ -101,13 +102,22 @@ public class UserController {
 
         List<UserAddress> addresses = userService.getUserAddressesByUserId(userId);
 
+        // convert to response objects
+        List<UserAddressResponse> addressResponses = convertUserAddresses(addresses);
+
         return new ResponseEntity<>(
             UserAddressesResponse.builder()
                 .userId(userId)
-                .addresses(addresses)
+                .addresses(addressResponses)
                 .build(),
             HttpStatus.OK
         );
+    }
+
+    private List<UserAddressResponse> convertUserAddresses(List<UserAddress> addresses) {
+        return addresses.stream()
+            .map(UserAddress::convert)
+            .toList();
     }
 
 }

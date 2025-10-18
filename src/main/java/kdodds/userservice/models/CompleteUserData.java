@@ -10,7 +10,9 @@ import java.util.List;
 public class CompleteUserData {
 
     private User user;
+
     private UserProfile userProfile;
+
     private List<UserAddress> userAddresses;
 
 }

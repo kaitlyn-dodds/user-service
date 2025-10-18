@@ -22,29 +22,40 @@ public class UserAddressesResponseTest {
      */
     @Test
     public void testSerialization() throws JsonProcessingException {
-        List<UserAddress> addresses = List.of(
-            TestDataFactory.createTestUserAddress(TestDataFactory.TEST_USER_ID)
-        );
+        UserAddress address = TestDataFactory.createTestUserAddress(TestDataFactory.TEST_USER_ID);
 
         UserAddressesResponse response = UserAddressesResponse.builder()
             .userId(TestDataFactory.TEST_USER_ID)
-            .addresses(addresses)
+            .addresses(List.of(
+                UserAddressResponse.builder()
+                    .id(address.getId())
+                    .userId(address.getUserId())
+                    .addressType(address.getAddressType())
+                    .addressLine1(address.getAddressLine1())
+                    .city(address.getCity())
+                    .state(address.getState())
+                    .zipCode(address.getZipCode())
+                    .country(address.getCountry())
+                    .createdAt(address.getCreatedAt())
+                    .updatedAt(address.getUpdatedAt())
+                    .build()
+            ))
             .build();
 
         String expectedJson = "{"
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"addresses\":["
             + "{"
-            + "\"id\":\"" + addresses.getFirst().getId() + "\","
+            + "\"id\":\"" + address.getId() + "\","
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"address_type\":\"" + TestDataFactory.TEST_USER_ADDRESS_TYPE + "\","
-            + "\"address_line1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
+            + "\"address_line_1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
             + "\"city\":\"" + TestDataFactory.TEST_USER_CITY + "\","
             + "\"state\":\"" + TestDataFactory.TEST_USER_STATE + "\","
             + "\"zip_code\":\"" + TestDataFactory.TEST_USER_ZIP_CODE + "\","
             + "\"country\":\"" + TestDataFactory.TEST_USER_COUNTRY + "\","
-            + "\"created_at\":\"" + addresses.getFirst().getCreatedAt().toString() + "\","
-            + "\"updated_at\":\"" + addresses.getFirst().getUpdatedAt().toString() + "\""
+            + "\"created_at\":\"" + address.getCreatedAt().toString() + "\","
+            + "\"updated_at\":\"" + address.getUpdatedAt().toString() + "\""
             + "}]"
             + "}";
 
@@ -56,8 +67,20 @@ public class UserAddressesResponseTest {
      */
     @Test
     public void testDeserialization() throws JsonProcessingException {
-        List<UserAddress> addresses = List.of(
-            TestDataFactory.createTestUserAddress(TestDataFactory.TEST_USER_ID)
+        UserAddress address = TestDataFactory.createTestUserAddress(TestDataFactory.TEST_USER_ID);
+        List<UserAddressResponse> addresses = List.of(
+            UserAddressResponse.builder()
+                .id(address.getId())
+                .userId(address.getUserId())
+                .addressType(address.getAddressType())
+                .addressLine1(address.getAddressLine1())
+                .city(address.getCity())
+                .state(address.getState())
+                .zipCode(address.getZipCode())
+                .country(address.getCountry())
+                .createdAt(address.getCreatedAt())
+                .updatedAt(address.getUpdatedAt())
+                .build()
         );
 
         String jsonString = "{"
@@ -67,7 +90,7 @@ public class UserAddressesResponseTest {
             + "\"id\":\"" + addresses.getFirst().getId() + "\","
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"address_type\":\"" + TestDataFactory.TEST_USER_ADDRESS_TYPE + "\","
-            + "\"address_line1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
+            + "\"address_line_1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
             + "\"city\":\"" + TestDataFactory.TEST_USER_CITY + "\","
             + "\"state\":\"" + TestDataFactory.TEST_USER_STATE + "\","
             + "\"zip_code\":\"" + TestDataFactory.TEST_USER_ZIP_CODE + "\","
