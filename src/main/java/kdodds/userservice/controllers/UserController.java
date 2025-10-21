@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -22,7 +23,8 @@ import java.util.List;
  * Handles all user related endpoints.
  */
 
-@RestController("")
+@RestController()
+@RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {
 
@@ -34,7 +36,7 @@ public class UserController {
      * @param userId The unique user id of the user
      * @return UserResponse wrapped in a ResponseEntity
      */
-    @GetMapping("/users/{userId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUserByUserId(@PathVariable String userId) {
         // check for null or invalid user id
         if (userId == null || userId.isEmpty()) {
@@ -66,7 +68,7 @@ public class UserController {
      * @param userId Unique user id of the user.
      * @return UserProfile object.
      */
-    @GetMapping("/users/{userId}/profile")
+    @GetMapping("/{userId}/profile")
     public ResponseEntity<UserProfileResponse> getUserProfileByUserId(@PathVariable String userId) {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
@@ -94,7 +96,7 @@ public class UserController {
      * @param userId Unique user id of the user.
      * @return UserAddressesResponse object.
      */
-    @GetMapping("/users/{userId}/addresses")
+    @GetMapping("/{userId}/addresses")
     public ResponseEntity<UserAddressesResponse> getUserAddressesByUserId(@PathVariable String userId) {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
