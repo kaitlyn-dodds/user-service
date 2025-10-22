@@ -31,6 +31,16 @@ public class UserController {
     private UserService userService;
 
     /**
+     * Test endpoint.
+     *
+     * @return String
+     */
+    @GetMapping("/test")
+    public String test() {
+        return "test";
+    }
+
+    /**
      * Gets all user data for a given user id.
      *
      * @param userId The unique user id of the user
