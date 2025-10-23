@@ -45,6 +45,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter:${springBootFrameworkVersion}")
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootFrameworkVersion}")
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-actuator
+    implementation("org.springframework.boot:spring-boot-starter-actuator:${springBootFrameworkVersion}")
     // https://mvnrepository.com/artifact/com.puppycrawl.tools/checkstyle
     implementation("com.puppycrawl.tools:checkstyle:${checkstyleDependencyVersion}")
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
