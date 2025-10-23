@@ -6,13 +6,21 @@ import kdodds.userservice.models.CompleteUserData;
 import kdodds.userservice.models.User;
 import kdodds.userservice.models.UserAddress;
 import kdodds.userservice.models.UserProfile;
+import kdodds.userservice.repositories.UserRepository;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
+@Slf4j
 @Service
+@AllArgsConstructor
 public class UserService {
+
+    private UserRepository userRepository;
 
     /**
      * Gets all user data for a given user id.
@@ -40,6 +48,15 @@ public class UserService {
     public User getUserByUserId(String userId) {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
+        }
+
+        // reach out to database to get user data
+        try {
+            userRepository.findById(UUID.fromString(userId));
+        } catch (Exception ex) {
+            log.error("Unable to find user with id: {}", userId);
+            log.error("Exception: {}", ex.getMessage());
+            throw new UserNotFoundException(userId);
         }
 
         return User.builder()

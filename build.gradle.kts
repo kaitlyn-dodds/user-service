@@ -68,6 +68,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootFrameworkVersion}")
+    // https://mvnrepository.com/artifact/com.h2database/h2
+    testImplementation("com.h2database:h2:2.4.240")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
