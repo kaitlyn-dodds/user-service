@@ -2,7 +2,7 @@ package kdodds.userservice.models.responses;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kdodds.userservice.models.UserProfile;
+import kdodds.userservice.dto.responses.UserProfileResponseDto;
 import kdodds.userservice.utils.TestDataFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,16 +20,7 @@ public class UserProfileResponseTest {
      */
     @Test
     public void testSerialization() throws JsonProcessingException {
-        UserProfile profile = TestDataFactory.createTestUserProfile(TestDataFactory.TEST_USER_ID);
-        UserProfileResponse response = UserProfileResponse.builder()
-            .userId(profile.getUserId())
-            .firstName(profile.getFirstName())
-            .lastName(profile.getLastName())
-            .phoneNumber(profile.getPhoneNumber())
-            .profileImageUrl(profile.getProfileImageUrl())
-            .createdAt(profile.getCreatedAt())
-            .updatedAt(profile.getUpdatedAt())
-            .build();
+        UserProfileResponseDto profile = TestDataFactory.createTestUserProfile(TestDataFactory.TEST_USER_ID);
 
         // expected json
         String expected = "{"
@@ -42,7 +33,7 @@ public class UserProfileResponseTest {
             + "\"updated_at\":\"" + profile.getUpdatedAt().toString() + "\""
             + "}";
 
-        Assertions.assertEquals(expected, objectMapper.writeValueAsString(response));
+        Assertions.assertEquals(expected, objectMapper.writeValueAsString(profile));
     }
 
     /**
@@ -60,7 +51,7 @@ public class UserProfileResponseTest {
             + "\"updated_at\":\"2024-01-02T12:00:00Z\""
             + "}";
 
-        UserProfileResponse response = objectMapper.readValue(jsonString, UserProfileResponse.class);
+        UserProfileResponseDto response = objectMapper.readValue(jsonString, UserProfileResponseDto.class);
 
         Assertions.assertEquals(TestDataFactory.TEST_USER_ID, response.getUserId());
         Assertions.assertEquals(TestDataFactory.TEST_USER_FIRST_NAME, response.getFirstName());

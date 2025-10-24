@@ -1,10 +1,9 @@
 package kdodds.userservice.utils;
 
-import kdodds.userservice.models.CompleteUserData;
-import kdodds.userservice.models.User;
-import kdodds.userservice.models.UserAddress;
-import kdodds.userservice.models.UserProfile;
-import kdodds.userservice.models.responses.UserAddressResponse;
+import kdodds.userservice.dto.responses.UserAddressResponseDto;
+import kdodds.userservice.dto.responses.UserAddressesResponseDto;
+import kdodds.userservice.dto.responses.UserProfileResponseDto;
+import kdodds.userservice.dto.responses.UserResponseDto;
 
 import java.time.Instant;
 import java.util.List;
@@ -54,10 +53,10 @@ public class TestDataFactory {
      *
      * @return CompleteUserData object.
      */
-    public static CompleteUserData createTestCompleteUserData() {
+    public static UserResponseDto createTestUserResponseDto() {
         String userId = TestDataFactory.generateRandomUuid();
 
-        return TestDataFactory.createTestCompleteUserData(userId);
+        return TestDataFactory.createTestUserResponseDto(userId);
     }
 
     /**
@@ -66,31 +65,18 @@ public class TestDataFactory {
      * @param userId The user id to use for the test data.
      * @return CompleteUserData object.
      */
-    public static CompleteUserData createTestCompleteUserData(String userId) {
-        return CompleteUserData.builder()
-            .user(TestDataFactory.createTestUser(userId))
-            .userProfile(TestDataFactory.createTestUserProfile(userId))
-            .userAddresses(
-                List.of(
-                    TestDataFactory.createTestUserAddress(userId)
-                )
-            )
-            .build();
-    }
-
-    /**
-     * Creates a test User object.
-     *
-     * @param userId The user id to use for the test data.
-     * @return User object.
-     */
-    public static User createTestUser(String userId) {
-        return User.builder()
-            .id(userId)
-            .email(TestDataFactory.TEST_USER_EMAIL)
-            .passwordHash(TestDataFactory.TEST_USER_PASSWORD)
-            .status("active")
+    public static UserResponseDto createTestUserResponseDto(String userId) {
+        return UserResponseDto.builder()
+            .userId(userId)
             .username(TestDataFactory.TEST_USER_USERNAME)
+            .email(TestDataFactory.TEST_USER_EMAIL)
+            .firstName(TestDataFactory.TEST_USER_FIRST_NAME)
+            .lastName(TestDataFactory.TEST_USER_LAST_NAME)
+            .phoneNumber(TestDataFactory.TEST_USER_PHONE_NUMBER)
+            .profileImageUrl(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL)
+            .addresses(List.of(
+                TestDataFactory.createTestUserAddress(userId)
+            ))
             .createdAt(Instant.now())
             .updatedAt(Instant.now())
             .build();
@@ -102,8 +88,8 @@ public class TestDataFactory {
      * @param userId The user id to use for the test data.
      * @return UserProfile object.
      */
-    public static UserProfile createTestUserProfile(String userId) {
-        return UserProfile.builder()
+    public static UserProfileResponseDto createTestUserProfile(String userId) {
+        return UserProfileResponseDto.builder()
             .userId(userId)
             .firstName(TestDataFactory.TEST_USER_FIRST_NAME)
             .lastName(TestDataFactory.TEST_USER_LAST_NAME)
@@ -115,13 +101,25 @@ public class TestDataFactory {
     }
 
     /**
-     * Creates a test UserAddress object.
+     * Creates a test UserAddressesResponseDto object.
+     *
+     * @return UserAddressesResponseDto object.
+     */
+    public static UserAddressesResponseDto createTestUserAddresses() {
+        return UserAddressesResponseDto.builder()
+            .userId(TestDataFactory.TEST_USER_ID)
+            .addresses(List.of(TestDataFactory.createTestUserAddress(TestDataFactory.TEST_USER_ID)))
+            .build();
+    }
+
+    /**
+     * Creates a test UserAddressResponseDto object.
      *
      * @param userId The user id to use for the test data.
-     * @return UserAddress object.
+     * @return UserAddressResponseDto object.
      */
-    public static UserAddress createTestUserAddress(String userId) {
-        return UserAddress.builder()
+    public static UserAddressResponseDto createTestUserAddress(String userId) {
+        return UserAddressResponseDto.builder()
             .id(generateRandomUuid())
             .userId(userId)
             .addressLine1(TestDataFactory.TEST_USER_ADDRESS_LINE_1)
@@ -133,18 +131,6 @@ public class TestDataFactory {
             .createdAt(Instant.now())
             .updatedAt(Instant.now())
             .build();
-    }
-
-    /**
-     * Converts a list of UserAddress objects to a list of UserAddressResponse objects.
-     *
-     * @param addresses List of UserAddress objects.
-     * @return List of UserAddressResponse objects.
-     */
-    public static List<UserAddressResponse> convertUserAddressesToResponse(List<UserAddress> addresses) {
-        return addresses.stream()
-            .map(UserAddress::convert)
-            .toList();
     }
 
 }

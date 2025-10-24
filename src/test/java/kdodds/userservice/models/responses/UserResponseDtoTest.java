@@ -1,17 +1,15 @@
 package kdodds.userservice.models.responses;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kdodds.userservice.models.CompleteUserData;
+import kdodds.userservice.dto.responses.UserResponseDto;
 import kdodds.userservice.utils.TestDataFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static kdodds.userservice.utils.TestDataFactory.convertUserAddressesToResponse;
-
 @SpringBootTest
-public class UserResponseTest {
+public class UserResponseDtoTest {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -21,22 +19,7 @@ public class UserResponseTest {
      */
     @Test
     public void testSerialization() throws Exception {
-        CompleteUserData completeUserData = TestDataFactory.createTestCompleteUserData(
-            TestDataFactory.TEST_USER_ID
-        );
-
-        UserResponse response = UserResponse.builder()
-            .userId(completeUserData.getUser().getId())
-            .username(completeUserData.getUser().getUsername())
-            .email(completeUserData.getUser().getEmail())
-            .createdAt(completeUserData.getUser().getCreatedAt())
-            .updatedAt(completeUserData.getUser().getUpdatedAt())
-            .firstName(completeUserData.getUserProfile().getFirstName())
-            .lastName(completeUserData.getUserProfile().getLastName())
-            .phoneNumber(completeUserData.getUserProfile().getPhoneNumber())
-            .profileImageUrl(completeUserData.getUserProfile().getProfileImageUrl())
-            .addresses(convertUserAddressesToResponse(completeUserData.getUserAddresses()))
-            .build();
+        UserResponseDto response = TestDataFactory.createTestUserResponseDto(TestDataFactory.TEST_USER_ID);
 
         String expectedJson = "{"
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
@@ -48,7 +31,7 @@ public class UserResponseTest {
             + "\"profile_image_url\":\"" + TestDataFactory.TEST_USER_PROFILE_IMAGE_URL + "\","
             + "\"addresses\":["
             + "{"
-            + "\"id\":\"" + completeUserData.getUserAddresses().getFirst().getId() + "\","
+            + "\"id\":\"" + response.getAddresses().getFirst().getId() + "\","
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"address_type\":\"" + TestDataFactory.TEST_USER_ADDRESS_TYPE + "\","
             + "\"address_line_1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
@@ -56,11 +39,11 @@ public class UserResponseTest {
             + "\"state\":\"" + TestDataFactory.TEST_USER_STATE + "\","
             + "\"zip_code\":\"" + TestDataFactory.TEST_USER_ZIP_CODE + "\","
             + "\"country\":\"" + TestDataFactory.TEST_USER_COUNTRY + "\","
-            + "\"created_at\":\"" + completeUserData.getUserAddresses().getFirst().getCreatedAt().toString() + "\","
-            + "\"updated_at\":\"" + completeUserData.getUserAddresses().getFirst().getUpdatedAt().toString() + "\""
+            + "\"created_at\":\"" + response.getAddresses().getFirst().getCreatedAt().toString() + "\","
+            + "\"updated_at\":\"" + response.getAddresses().getFirst().getUpdatedAt().toString() + "\""
             + "}],"
-            + "\"created_at\":\"" + completeUserData.getUser().getCreatedAt().toString() + "\","
-            + "\"updated_at\":\"" + completeUserData.getUser().getUpdatedAt().toString() + "\""
+            + "\"created_at\":\"" + response.getCreatedAt().toString() + "\","
+            + "\"updated_at\":\"" + response.getUpdatedAt().toString() + "\""
             + "}";
 
         Assertions.assertEquals(expectedJson, objectMapper.writeValueAsString(response));
@@ -96,7 +79,7 @@ public class UserResponseTest {
             + "\"updated_at\":\"2024-01-02T12:00:00Z\""
             + "}";
 
-        UserResponse response = objectMapper.readValue(jsonString, UserResponse.class);
+        UserResponseDto response = objectMapper.readValue(jsonString, UserResponseDto.class);
 
         Assertions.assertEquals(TestDataFactory.TEST_USER_ID, response.getUserId());
         Assertions.assertEquals(TestDataFactory.TEST_USER_USERNAME, response.getUsername());

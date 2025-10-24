@@ -1,4 +1,4 @@
-package kdodds.userservice.models.responses;
+package kdodds.userservice.dto.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -13,7 +13,7 @@ import java.time.Instant;
 @Jacksonized
 @Data
 @Builder
-public class UserAddressResponse {
+public class UserAddressResponseDto {
 
     @JsonProperty("id")
     private String id;

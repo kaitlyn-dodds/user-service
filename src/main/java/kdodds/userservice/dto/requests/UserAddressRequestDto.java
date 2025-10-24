@@ -1,4 +1,4 @@
-package kdodds.userservice.models.requests;
+package kdodds.userservice.dto.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -8,7 +8,7 @@ import lombok.extern.jackson.Jacksonized;
 @Data
 @Builder
 @Jacksonized
-public class UserAddressRequest {
+public class UserAddressRequestDto {
 
     @JsonProperty("address_type")
     private String addressType; // billing, shipping, home, etc.

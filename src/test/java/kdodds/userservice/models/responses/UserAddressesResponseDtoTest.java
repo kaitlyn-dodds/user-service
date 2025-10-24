@@ -2,17 +2,15 @@ package kdodds.userservice.models.responses;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kdodds.userservice.models.UserAddress;
+import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.utils.TestDataFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
-
 @SpringBootTest
-public class UserAddressesResponseTest {
+public class UserAddressesResponseDtoTest {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -22,31 +20,13 @@ public class UserAddressesResponseTest {
      */
     @Test
     public void testSerialization() throws JsonProcessingException {
-        UserAddress address = TestDataFactory.createTestUserAddress(TestDataFactory.TEST_USER_ID);
-
-        UserAddressesResponse response = UserAddressesResponse.builder()
-            .userId(TestDataFactory.TEST_USER_ID)
-            .addresses(List.of(
-                UserAddressResponse.builder()
-                    .id(address.getId())
-                    .userId(address.getUserId())
-                    .addressType(address.getAddressType())
-                    .addressLine1(address.getAddressLine1())
-                    .city(address.getCity())
-                    .state(address.getState())
-                    .zipCode(address.getZipCode())
-                    .country(address.getCountry())
-                    .createdAt(address.getCreatedAt())
-                    .updatedAt(address.getUpdatedAt())
-                    .build()
-            ))
-            .build();
+        UserAddressesResponseDto response = TestDataFactory.createTestUserAddresses();
 
         String expectedJson = "{"
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"addresses\":["
             + "{"
-            + "\"id\":\"" + address.getId() + "\","
+            + "\"id\":\"" + response.getAddresses().getFirst().getId() + "\","
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"address_type\":\"" + TestDataFactory.TEST_USER_ADDRESS_TYPE + "\","
             + "\"address_line_1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
@@ -54,8 +34,8 @@ public class UserAddressesResponseTest {
             + "\"state\":\"" + TestDataFactory.TEST_USER_STATE + "\","
             + "\"zip_code\":\"" + TestDataFactory.TEST_USER_ZIP_CODE + "\","
             + "\"country\":\"" + TestDataFactory.TEST_USER_COUNTRY + "\","
-            + "\"created_at\":\"" + address.getCreatedAt().toString() + "\","
-            + "\"updated_at\":\"" + address.getUpdatedAt().toString() + "\""
+            + "\"created_at\":\"" + response.getAddresses().getFirst().getCreatedAt().toString() + "\","
+            + "\"updated_at\":\"" + response.getAddresses().getFirst().getUpdatedAt().toString() + "\""
             + "}]"
             + "}";
 
@@ -67,27 +47,14 @@ public class UserAddressesResponseTest {
      */
     @Test
     public void testDeserialization() throws JsonProcessingException {
-        UserAddress address = TestDataFactory.createTestUserAddress(TestDataFactory.TEST_USER_ID);
-        List<UserAddressResponse> addresses = List.of(
-            UserAddressResponse.builder()
-                .id(address.getId())
-                .userId(address.getUserId())
-                .addressType(address.getAddressType())
-                .addressLine1(address.getAddressLine1())
-                .city(address.getCity())
-                .state(address.getState())
-                .zipCode(address.getZipCode())
-                .country(address.getCountry())
-                .createdAt(address.getCreatedAt())
-                .updatedAt(address.getUpdatedAt())
-                .build()
-        );
+        UserAddressesResponseDto response = TestDataFactory.createTestUserAddresses();
+
 
         String jsonString = "{"
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"addresses\":["
             + "{"
-            + "\"id\":\"" + addresses.getFirst().getId() + "\","
+            + "\"id\":\"" + response.getAddresses().getFirst().getId() + "\","
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"address_type\":\"" + TestDataFactory.TEST_USER_ADDRESS_TYPE + "\","
             + "\"address_line_1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
@@ -95,16 +62,16 @@ public class UserAddressesResponseTest {
             + "\"state\":\"" + TestDataFactory.TEST_USER_STATE + "\","
             + "\"zip_code\":\"" + TestDataFactory.TEST_USER_ZIP_CODE + "\","
             + "\"country\":\"" + TestDataFactory.TEST_USER_COUNTRY + "\","
-            + "\"created_at\":\"" + addresses.getFirst().getCreatedAt().toString() + "\","
-            + "\"updated_at\":\"" + addresses.getFirst().getUpdatedAt().toString() + "\""
+            + "\"created_at\":\"" + response.getAddresses().getFirst().getCreatedAt().toString() + "\","
+            + "\"updated_at\":\"" + response.getAddresses().getFirst().getUpdatedAt().toString() + "\""
             + "}]"
             + "}";
 
-        UserAddressesResponse response = objectMapper.readValue(jsonString, UserAddressesResponse.class);
+        UserAddressesResponseDto result = objectMapper.readValue(jsonString, UserAddressesResponseDto.class);
 
         Assertions.assertEquals(TestDataFactory.TEST_USER_ID, response.getUserId());
         Assertions.assertEquals(1, response.getAddresses().size());
-        Assertions.assertEquals(addresses.getFirst(), response.getAddresses().getFirst());
+        Assertions.assertEquals(result.getAddresses().getFirst(), response.getAddresses().getFirst());
     }
 
 }

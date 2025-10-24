@@ -1,4 +1,4 @@
-package kdodds.userservice.models.requests;
+package kdodds.userservice.dto.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -8,12 +8,12 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @Builder
 @Data
-public class CreateUserAddressRequest {
+public class CreateUserAddressRequestDto {
 
     @JsonProperty(value = "user_id", required = true)
     private String userId;
 
     @JsonProperty(value = "address", required = true)
-    private UserAddressRequest address;
+    private UserAddressRequestDto address;
 
 }

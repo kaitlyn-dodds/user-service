@@ -1,8 +1,8 @@
 package kdodds.userservice.controllers;
 
-import kdodds.userservice.models.responses.UserAddressesResponse;
-import kdodds.userservice.models.responses.UserProfileResponse;
-import kdodds.userservice.models.responses.UserResponse;
+import kdodds.userservice.dto.responses.UserAddressesResponseDto;
+import kdodds.userservice.dto.responses.UserProfileResponseDto;
+import kdodds.userservice.dto.responses.UserResponseDto;
 import kdodds.userservice.services.UserService;
 import kdodds.userservice.utils.TestDataFactory;
 import org.junit.jupiter.api.Assertions;
@@ -44,22 +44,22 @@ public class UserControllerTest {
         String userId = TestDataFactory.TEST_USER_ID;
 
         // mock the service call
-        Mockito.when(mockUserService.getCompleteUserDataByUserId(userId)).thenAnswer(invocation -> {
+        Mockito.when(mockUserService.getUserResponse(userId)).thenAnswer(invocation -> {
             // get the user id arg
             String argUserId = invocation.getArgument(0);
 
             // create and return a complete user data object
-            return TestDataFactory.createTestCompleteUserData(argUserId);
+            return TestDataFactory.createTestUserResponseDto(argUserId);
         });
 
-        ResponseEntity<UserResponse> response = userController.getUserByUserId(userId);
+        ResponseEntity<UserResponseDto> response = userController.getUserByUserId(userId);
 
         // validate response
         Assertions.assertNotNull(response);
         Assertions.assertEquals(200, response.getStatusCode().value());
 
         // validate user and user profile
-        UserResponse userResponse = response.getBody();
+        UserResponseDto userResponse = response.getBody();
         Assertions.assertNotNull(userResponse);
         Assertions.assertEquals(userId, userResponse.getUserId());
         Assertions.assertEquals(TestDataFactory.TEST_USER_USERNAME, userResponse.getUsername());
@@ -136,14 +136,14 @@ public class UserControllerTest {
             TestDataFactory.createTestUserProfile(userId)
         );
 
-        ResponseEntity<UserProfileResponse> response = userController.getUserProfileByUserId(userId);
+        ResponseEntity<UserProfileResponseDto> response = userController.getUserProfileByUserId(userId);
 
         // validate response
         Assertions.assertNotNull(response);
         Assertions.assertEquals(200, response.getStatusCode().value());
 
         // validate user profile
-        UserProfileResponse userProfileResponse = response.getBody();
+        UserProfileResponseDto userProfileResponse = response.getBody();
         Assertions.assertNotNull(userProfileResponse);
         Assertions.assertEquals(userId, userProfileResponse.getUserId());
         Assertions.assertEquals(TestDataFactory.TEST_USER_FIRST_NAME, userProfileResponse.getFirstName());
@@ -196,17 +196,20 @@ public class UserControllerTest {
 
         // mock service call
         Mockito.when(mockUserService.getUserAddressesByUserId(userId)).thenReturn(
-            List.of(TestDataFactory.createTestUserAddress(userId))
+            UserAddressesResponseDto.builder()
+                .userId(userId)
+                .addresses(List.of(TestDataFactory.createTestUserAddress(userId)))
+                .build()
         );
 
-        ResponseEntity<UserAddressesResponse> response = userController.getUserAddressesByUserId(userId);
+        ResponseEntity<UserAddressesResponseDto> response = userController.getUserAddressesByUserId(userId);
 
         // validate response
         Assertions.assertNotNull(response);
         Assertions.assertEquals(200, response.getStatusCode().value());
 
         // validate addresses
-        UserAddressesResponse userAddressesResponse = response.getBody();
+        UserAddressesResponseDto userAddressesResponse = response.getBody();
         Assertions.assertNotNull(userAddressesResponse);
         Assertions.assertEquals(userId, userAddressesResponse.getUserId());
         Assertions.assertNotNull(userAddressesResponse.getAddresses());
