@@ -1,13 +1,20 @@
 package kdodds.userservice.services;
 
-import kdodds.userservice.errors.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
+import kdodds.userservice.entities.User;
+import kdodds.userservice.entities.UserProfile;
+import kdodds.userservice.errors.models.exceptions.InvalidUserIdException;
+import kdodds.userservice.errors.models.exceptions.UserNotFoundException;
+import kdodds.userservice.repositories.UserProfileRepository;
 import kdodds.userservice.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -16,6 +23,8 @@ public class UserService {
 
     private UserRepository userRepository;
 
+    private UserProfileRepository userProfileRepository;
+
     /**
      * Gets all user data for a given user id.
      *
@@ -23,11 +32,24 @@ public class UserService {
      * @return UserResponseDto
      */
     public UserResponseDto getUserResponse(String userId) {
-        // TODO: would query db w/ single query w/ joins for user, profile, addresses
+        if (userId == null || userId.isEmpty()) {
+            throw new InvalidUserIdException();
+        }
 
-        return UserResponseDto.builder()
-            .userId(userId)
-            .build();
+        Optional<User> user;
+        try {
+            user = userRepository.findById(UUID.fromString(userId));
+        } catch (Exception ex) {
+            log.error("Error getting user for user id: {}", userId, ex);
+            throw new InvalidUserIdException();
+        }
+
+        if (user.isEmpty()) {
+            log.warn("User not found for id: {}", userId);
+            throw new UserNotFoundException("User not found for id: " + userId);
+        }
+
+        return UserResponseDto.fromEntity(user.get());
     }
 
     /**
@@ -41,7 +63,20 @@ public class UserService {
             throw new InvalidUserIdException();
         }
 
-        return UserProfileResponseDto.builder().build();
+        Optional<UserProfile> profile;
+        try {
+            profile = userProfileRepository.findById(UUID.fromString(userId));
+        } catch (Exception ex) {
+            log.error("Error getting user profile for user id: {}", userId, ex);
+            throw new InvalidUserIdException();
+        }
+
+        if (profile.isEmpty()) {
+            log.warn("User profile not found for id: {}", userId);
+            throw new UserNotFoundException("User profile not found for id: " + userId);
+        }
+
+        return UserProfileResponseDto.fromEntity(profile.get());
     }
 
     /**
