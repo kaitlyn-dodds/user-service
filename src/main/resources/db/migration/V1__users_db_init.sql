@@ -1,10 +1,3 @@
--- ======================================================
--- DROP TABLES
--- ======================================================
--- DROP TABLE IF EXISTS user_addresses;
--- DROP TABLE IF EXISTS user_profiles;
--- DROP TABLE IF EXISTS users;
-
 -- Enable UUID generation (required for gen_random_uuid())
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
