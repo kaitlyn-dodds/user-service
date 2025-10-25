@@ -3,6 +3,7 @@ package kdodds.userservice.dto.responses;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import kdodds.userservice.entities.UserAddress;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -47,5 +48,27 @@ public class UserAddressResponseDto {
 
     @JsonProperty("updated_at")
     private Instant updatedAt;
+
+    /**
+     * Helper method to convert an entity to a DTO.
+     *
+     * @param userAddress The entity to convert.
+     * @return UserAddressResponseDto
+     */
+    public static UserAddressResponseDto fromEntity(UserAddress userAddress) {
+        return UserAddressResponseDto.builder()
+            .id(userAddress.getId().toString())
+            .userId(userAddress.getUser().getId().toString())
+            .addressType(userAddress.getAddressType())
+            .addressLine1(userAddress.getAddressLine1())
+            .addressLine2(userAddress.getAddressLine2())
+            .city(userAddress.getCity())
+            .state(userAddress.getState())
+            .zipCode(userAddress.getZipCode())
+            .country(userAddress.getCountry())
+            .createdAt(userAddress.getCreatedAt())
+            .updatedAt(userAddress.getUpdatedAt())
+            .build();
+    }
 
 }

@@ -7,6 +7,7 @@ import kdodds.userservice.entities.User;
 import kdodds.userservice.entities.UserProfile;
 import kdodds.userservice.errors.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.errors.models.exceptions.UserNotFoundException;
+import kdodds.userservice.repositories.UserAddressRepository;
 import kdodds.userservice.repositories.UserProfileRepository;
 import kdodds.userservice.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,8 @@ public class UserService {
     private UserRepository userRepository;
 
     private UserProfileRepository userProfileRepository;
+
+    private UserAddressRepository userAddressRepository;
 
     /**
      * Gets all user data for a given user id.
@@ -89,6 +92,8 @@ public class UserService {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
         }
+
+        // TODO: find all by user id
 
         return UserAddressesResponseDto.builder().build();
     }

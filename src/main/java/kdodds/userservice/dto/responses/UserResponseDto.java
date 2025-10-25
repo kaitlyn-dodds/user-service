@@ -7,14 +7,17 @@ import kdodds.userservice.entities.User;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @Jacksonized
 @Data
 @Builder
+@Slf4j
 public class UserResponseDto {
 
     @JsonProperty("user_id")
@@ -59,6 +62,16 @@ public class UserResponseDto {
             return null;
         }
 
+        // convert addresses
+        List<UserAddressResponseDto> addresses = new ArrayList<>();
+        log.debug("User has {} addresses in database", user.getAddresses().size());
+        if (user.getAddresses() != null && !user.getAddresses().isEmpty()) {
+            addresses = user.getAddresses()
+                .stream()
+                .map(UserAddressResponseDto::fromEntity)
+                .toList();
+        }
+
         return UserResponseDto.builder()
             .userId(user.getId().toString())
             .username(user.getUsername())
@@ -67,7 +80,7 @@ public class UserResponseDto {
             .lastName(user.getUserProfile().getLastName())
             .phoneNumber(user.getUserProfile().getPhoneNumber())
             .profileImageUrl(user.getUserProfile().getProfileImageUrl())
-            // .addresses()
+            .addresses(addresses)
             .createdAt(user.getCreatedAt())
             .updatedAt(user.getUpdatedAt())
             .build();
