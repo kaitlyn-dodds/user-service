@@ -84,7 +84,8 @@ public class UserController {
      * @return UserAddressesResponse object.
      */
     @GetMapping("/{userId}/addresses")
-    public ResponseEntity<UserAddressesResponseDto> getUserAddressesByUserId(@PathVariable String userId) {
+    public ResponseEntity<UserAddressesResponseDto> getUserAddressesByUserId(@PathVariable String userId)
+        throws Exception {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
         }

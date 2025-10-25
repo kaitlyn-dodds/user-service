@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -97,14 +98,28 @@ public class UserService {
      * @param userId User id to use to get the addresses.
      * @return UserAddressesResponseDto
      */
-    public UserAddressesResponseDto getUserAddressesByUserId(String userId) {
+    public UserAddressesResponseDto getUserAddressesByUserId(String userId) throws Exception {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
         }
 
-        // TODO: find all by user id
+        Optional<List<UserAddress>> addresses;
+        try {
+            addresses = userAddressRepository.findAddressesByUserId(UUID.fromString(userId));
+        } catch (Exception ex) {
+            log.error("Error getting user addresses for user id: {}", userId, ex);
+            throw new Exception(
+                String.format("Find addresses by user id for userId %s failed for unknown reasons", userId),
+                ex
+            );
+        }
 
-        return UserAddressesResponseDto.builder().build();
+        if (addresses.isEmpty()) {
+            log.warn("User addresses not found for id: {}", userId);
+            throw new UserAddressNotFound("User addresses not found for id: " + userId);
+        }
+
+        return UserAddressesResponseDto.from(userId, addresses.get());
     }
 
     /**

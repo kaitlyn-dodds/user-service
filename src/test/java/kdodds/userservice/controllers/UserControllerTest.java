@@ -191,7 +191,7 @@ public class UserControllerTest {
      * UserAddresses.
      */
     @Test
-    public void testGetUserAddressesById_ValidId_ReturnsUserAddresses() {
+    public void testGetUserAddressesById_ValidId_ReturnsUserAddresses() throws Exception {
         String userId = TestDataFactory.TEST_USER_ID;
 
         // mock service call
