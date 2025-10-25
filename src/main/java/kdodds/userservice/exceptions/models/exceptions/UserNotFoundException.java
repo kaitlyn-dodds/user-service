@@ -1,4 +1,4 @@
-package kdodds.userservice.errors.models.exceptions;
+package kdodds.userservice.exceptions.models.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

@@ -1,4 +1,4 @@
-package kdodds.userservice.errors.models;
+package kdodds.userservice.exceptions.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

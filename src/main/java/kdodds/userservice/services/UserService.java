@@ -1,12 +1,16 @@
 package kdodds.userservice.services;
 
+import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
 import kdodds.userservice.entities.User;
+import kdodds.userservice.entities.UserAddress;
 import kdodds.userservice.entities.UserProfile;
-import kdodds.userservice.errors.models.exceptions.InvalidUserIdException;
-import kdodds.userservice.errors.models.exceptions.UserNotFoundException;
+import kdodds.userservice.exceptions.models.exceptions.InvalidRequestData;
+import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
+import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
+import kdodds.userservice.exceptions.models.exceptions.UserNotFoundException;
 import kdodds.userservice.repositories.UserAddressRepository;
 import kdodds.userservice.repositories.UserProfileRepository;
 import kdodds.userservice.repositories.UserRepository;
@@ -34,7 +38,7 @@ public class UserService {
      * @param userId The unique user id of the user.
      * @return UserResponseDto
      */
-    public UserResponseDto getUserResponse(String userId) {
+    public UserResponseDto getUserResponse(String userId) throws Exception {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
         }
@@ -44,7 +48,9 @@ public class UserService {
             user = userRepository.findById(UUID.fromString(userId));
         } catch (Exception ex) {
             log.error("Error getting user for user id: {}", userId, ex);
-            throw new InvalidUserIdException();
+            throw new Exception(
+                String.format("Find user by id for user id %s failed for unknown reasons", userId), ex
+            );
         }
 
         if (user.isEmpty()) {
@@ -61,7 +67,7 @@ public class UserService {
      * @param userId User id to get the profile.
      * @return UserProfileResponseDto
      */
-    public UserProfileResponseDto getUserProfileByUserId(String userId) {
+    public UserProfileResponseDto getUserProfileByUserId(String userId) throws Exception {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
         }
@@ -71,7 +77,10 @@ public class UserService {
             profile = userProfileRepository.findById(UUID.fromString(userId));
         } catch (Exception ex) {
             log.error("Error getting user profile for user id: {}", userId, ex);
-            throw new InvalidUserIdException();
+            throw new Exception(
+                String.format("Find profile by id for userId %s failed for unknown reasons", userId),
+                ex
+            );
         }
 
         if (profile.isEmpty()) {
@@ -96,6 +105,42 @@ public class UserService {
         // TODO: find all by user id
 
         return UserAddressesResponseDto.builder().build();
+    }
+
+    /**
+     * Gets a user address by address id. Returns the single UserAddress if found.
+     *
+     * @param userId The user id to use for the test data.
+     * @param addressId The address id to use for the test data.
+     * @return UserAddressResponseDto
+     */
+    public UserAddressResponseDto getUserAddressById(String userId, String addressId) throws Exception {
+        // both ids should be valid UUIDs
+        if (userId == null || userId.isEmpty() || addressId == null || addressId.isEmpty()) {
+            throw new InvalidRequestData("Invalid request data.");
+        }
+
+        Optional<UserAddress> address;
+        try {
+            address = userAddressRepository.findById(UUID.fromString(addressId));
+        } catch (Exception ex) {
+            log.error("Error getting user address for user id: {}, address id: {}", userId, addressId, ex);
+            throw new Exception(
+                String.format(
+                    "Find address by id for address id %s, user id %s, failed for unknown reasons", addressId, userId
+                ),
+                ex
+            );
+        }
+
+        if (address.isEmpty()) {
+            log.warn("User address not found for address id: {}", addressId);
+            throw new UserAddressNotFound(
+                String.format("Address not found for address id %s", addressId)
+            );
+        }
+
+        return UserAddressResponseDto.fromEntity(address.get());
     }
 
 }

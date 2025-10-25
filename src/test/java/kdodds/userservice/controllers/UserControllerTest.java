@@ -40,7 +40,7 @@ public class UserControllerTest {
      * Test the UserController /users/{userId} endpoint returns a 200 status code along w/ a complete UserResponse.
      */
     @Test
-    public void testGetUserById_ValidId_ReturnsUserResponse() {
+    public void testGetUserById_ValidId_ReturnsUserResponse() throws Exception {
         String userId = TestDataFactory.TEST_USER_ID;
 
         // mock the service call
@@ -128,7 +128,7 @@ public class UserControllerTest {
      * UserProfileResponse.
      */
     @Test
-    public void testGetUserProfileById_ValidId_ReturnsUserProfileResponse() {
+    public void testGetUserProfileById_ValidId_ReturnsUserProfileResponse() throws Exception {
         String userId = TestDataFactory.TEST_USER_ID;
 
         // mock the service call

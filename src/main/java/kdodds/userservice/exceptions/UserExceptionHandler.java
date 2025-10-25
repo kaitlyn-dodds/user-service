@@ -1,8 +1,10 @@
-package kdodds.userservice.errors;
+package kdodds.userservice.exceptions;
 
-import kdodds.userservice.errors.models.ErrorResponse;
-import kdodds.userservice.errors.models.exceptions.InvalidUserIdException;
-import kdodds.userservice.errors.models.exceptions.UserNotFoundException;
+import kdodds.userservice.exceptions.models.ErrorResponse;
+import kdodds.userservice.exceptions.models.exceptions.InvalidRequestData;
+import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
+import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
+import kdodds.userservice.exceptions.models.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,13 +14,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class UserExceptionHandler {
 
     /**
-     * Handle UserNotFoundExceptions, thrown when a user cannot be found for some given data.
+     * Handles "Not Found" exceptions, thrown when a requested resource is not found.
      *
-     * @param ex The UserNotFoundException object.
+     * @param ex The RuntimeException object.
      * @return An ErrorResponse wrapped in a ResponseEntity.
      */
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
+    @ExceptionHandler({UserNotFoundException.class, UserAddressNotFound.class})
+    public ResponseEntity<ErrorResponse> handleDataNotFound(RuntimeException ex) {
         ErrorResponse error = ErrorResponse.builder()
             .error(HttpStatus.NOT_FOUND.getReasonPhrase())
             .message(ex.getMessage())
@@ -29,13 +31,14 @@ public class UserExceptionHandler {
     }
 
     /**
-     * Handle InvalidUserDataException exceptions, thrown when some provided user data is invalid and cannot be used.
+     * Handle invalid request data related exceptions, thrown when some provided user data is invalid and cannot be
+     * used.
      *
-     * @param ex The InvalidUserDataException object.
+     * @param ex The RuntimeException object.
      * @return An ErrorResponse wrapped in a ResponseEntity.
      */
-    @ExceptionHandler(InvalidUserIdException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidUserDataException(InvalidUserIdException ex) {
+    @ExceptionHandler({InvalidUserIdException.class, InvalidRequestData.class})
+    public ResponseEntity<ErrorResponse> handleInvalidRequestDataException(RuntimeException ex) {
         ErrorResponse response = ErrorResponse.builder()
             .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
             .message(ex.getMessage())
