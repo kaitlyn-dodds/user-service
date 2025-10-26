@@ -39,7 +39,7 @@ public class UserService {
      * @param userId The unique user id of the user.
      * @return UserResponseDto
      */
-    public UserResponseDto getUserResponse(String userId) throws Exception {
+    public UserResponseDto getUserResponseDto(String userId) throws Exception {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
         }
@@ -56,7 +56,7 @@ public class UserService {
 
         if (user.isEmpty()) {
             log.warn("User not found for id: {}", userId);
-            throw new UserNotFoundException("User not found for id: " + userId);
+            throw new UserNotFoundException(userId);
         }
 
         return UserResponseDto.fromEntity(user.get());

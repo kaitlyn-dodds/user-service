@@ -39,7 +39,7 @@ public class UserController {
             throw new InvalidUserIdException();
         }
 
-        UserResponseDto response = userService.getUserResponse(userId);
+        UserResponseDto response = userService.getUserResponseDto(userId);
 
         return new ResponseEntity<>(
             response,

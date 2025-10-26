@@ -4,9 +4,13 @@ import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
+import kdodds.userservice.entities.User;
+import kdodds.userservice.entities.UserAddress;
+import kdodds.userservice.entities.UserProfile;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 public class TestDataFactory {
 
@@ -133,6 +137,70 @@ public class TestDataFactory {
             .createdAt(Instant.now())
             .updatedAt(Instant.now())
             .build();
+    }
+
+    /**
+     * Creates a test User entity.
+     */
+    public static User createTestUserEntity(String userId) {
+        UserProfile profile = TestDataFactory.createTestUserProfileEntity(userId);
+
+        List<UserAddress> addresses = List.of(
+            TestDataFactory.createTestUserAddressEntity(userId)
+        );
+
+        // User
+        User user = new User();
+        user.setId(UUID.fromString(userId));
+        user.setUsername(TestDataFactory.TEST_USER_USERNAME);
+        user.setEmail(TestDataFactory.TEST_USER_EMAIL);
+        user.setPasswordHash(TestDataFactory.TEST_USER_PASSWORD);
+        user.setStatus("ACTIVE");
+        user.setCreatedAt(Instant.now());
+        user.setUpdatedAt(Instant.now());
+        user.setUserProfile(profile);
+        user.setAddresses(addresses);
+
+        // set user on addresses (necessary for mapper functions)
+        addresses.forEach(address -> address.setUser(user));
+
+        return user;
+    }
+
+    /**
+     * Create a test UserProfile.
+     */
+    public static UserProfile createTestUserProfileEntity(String userId) {
+        UserProfile profile = new UserProfile();
+
+        profile.setUserId(UUID.fromString(userId));
+        profile.setFirstName(TestDataFactory.TEST_USER_FIRST_NAME);
+        profile.setLastName(TestDataFactory.TEST_USER_LAST_NAME);
+        profile.setPhoneNumber(TestDataFactory.TEST_USER_PHONE_NUMBER);
+        profile.setProfileImageUrl(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL);
+        profile.setCreatedAt(Instant.now());
+        profile.setUpdatedAt(Instant.now());
+
+        return profile;
+    }
+
+    /**
+     * Create a test UserAddress.
+     */
+    public static UserAddress createTestUserAddressEntity(String userId) {
+        UserAddress address = new UserAddress();
+
+        address.setId(UUID.fromString(TestDataFactory.TEST_ADDRESS_ID_1));
+        address.setAddressType(TestDataFactory.TEST_USER_ADDRESS_TYPE);
+        address.setAddressLine1(TestDataFactory.TEST_USER_ADDRESS_LINE_1);
+        address.setCity(TestDataFactory.TEST_USER_CITY);
+        address.setState(TestDataFactory.TEST_USER_STATE);
+        address.setZipCode(TestDataFactory.TEST_USER_ZIP_CODE);
+        address.setCountry(TestDataFactory.TEST_USER_COUNTRY);
+        address.setCreatedAt(Instant.now());
+        address.setUpdatedAt(Instant.now());
+
+        return address;
     }
 
 }

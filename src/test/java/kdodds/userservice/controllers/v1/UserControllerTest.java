@@ -47,7 +47,7 @@ public class UserControllerTest {
         String userId = TestDataFactory.TEST_USER_ID;
 
         // mock the service call
-        Mockito.when(mockUserService.getUserResponse(userId)).thenAnswer(invocation -> {
+        Mockito.when(mockUserService.getUserResponseDto(userId)).thenAnswer(invocation -> {
             // get the user id arg
             String argUserId = invocation.getArgument(0);
 
