@@ -1,5 +1,6 @@
 package kdodds.userservice.controllers;
 
+import kdodds.userservice.controllers.v1.UserController;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;

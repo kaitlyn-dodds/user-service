@@ -1,4 +1,4 @@
-package kdodds.userservice.controllers;
+package kdodds.userservice.controllers.v1;
 
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
@@ -20,21 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
  */
 
 @RestController()
-@RequestMapping("/users")
+@RequestMapping("/v1/users")
 @AllArgsConstructor
 public class UserController {
 
     private UserService userService;
-
-    /**
-     * Test endpoint.
-     *
-     * @return String
-     */
-    @GetMapping("/test")
-    public String test() {
-        return "test";
-    }
 
     /**
      * Gets all user data for a given user id.
