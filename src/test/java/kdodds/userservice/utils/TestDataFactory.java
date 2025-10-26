@@ -38,6 +38,8 @@ public class TestDataFactory {
 
     public static final String TEST_USER_COUNTRY = "USA";
 
+    public static final String TEST_ADDRESS_ID_1 = "12345678-1234-1234-1234-123456789012";
+
     /**
      * Generates a random UUID.
      *
@@ -75,7 +77,7 @@ public class TestDataFactory {
             .phoneNumber(TestDataFactory.TEST_USER_PHONE_NUMBER)
             .profileImageUrl(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL)
             .addresses(List.of(
-                TestDataFactory.createTestUserAddress(userId)
+                TestDataFactory.createTestUserAddressDto(userId)
             ))
             .createdAt(Instant.now())
             .updatedAt(Instant.now())
@@ -88,7 +90,7 @@ public class TestDataFactory {
      * @param userId The user id to use for the test data.
      * @return UserProfile object.
      */
-    public static UserProfileResponseDto createTestUserProfile(String userId) {
+    public static UserProfileResponseDto createTestUserProfileDto(String userId) {
         return UserProfileResponseDto.builder()
             .userId(userId)
             .firstName(TestDataFactory.TEST_USER_FIRST_NAME)
@@ -105,10 +107,10 @@ public class TestDataFactory {
      *
      * @return UserAddressesResponseDto object.
      */
-    public static UserAddressesResponseDto createTestUserAddresses() {
+    public static UserAddressesResponseDto createTestUserAddressesDto() {
         return UserAddressesResponseDto.builder()
             .userId(TestDataFactory.TEST_USER_ID)
-            .addresses(List.of(TestDataFactory.createTestUserAddress(TestDataFactory.TEST_USER_ID)))
+            .addresses(List.of(TestDataFactory.createTestUserAddressDto(TestDataFactory.TEST_USER_ID)))
             .build();
     }
 
@@ -118,9 +120,9 @@ public class TestDataFactory {
      * @param userId The user id to use for the test data.
      * @return UserAddressResponseDto object.
      */
-    public static UserAddressResponseDto createTestUserAddress(String userId) {
+    public static UserAddressResponseDto createTestUserAddressDto(String userId) {
         return UserAddressResponseDto.builder()
-            .id(generateRandomUuid())
+            .id(TestDataFactory.TEST_ADDRESS_ID_1)
             .userId(userId)
             .addressLine1(TestDataFactory.TEST_USER_ADDRESS_LINE_1)
             .addressType(TestDataFactory.TEST_USER_ADDRESS_TYPE)

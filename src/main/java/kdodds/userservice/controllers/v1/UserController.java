@@ -4,7 +4,7 @@ import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
-import kdodds.userservice.exceptions.models.exceptions.InvalidRequestData;
+import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.services.UserService;
 import lombok.AllArgsConstructor;
@@ -105,7 +105,7 @@ public class UserController {
         }
 
         if (addressId == null || addressId.isEmpty()) {
-            throw new InvalidRequestData("Invalid null or empty address id");
+            throw new InvalidRequestDataException("Invalid null or empty address id");
         }
 
         UserAddressResponseDto response = userService.getUserAddressById(userId, addressId);

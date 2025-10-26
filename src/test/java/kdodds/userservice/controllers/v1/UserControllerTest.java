@@ -1,9 +1,11 @@
-package kdodds.userservice.controllers;
+package kdodds.userservice.controllers.v1;
 
-import kdodds.userservice.controllers.v1.UserController;
+import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
+import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
+import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.services.UserService;
 import kdodds.userservice.utils.TestDataFactory;
 import org.junit.jupiter.api.Assertions;
@@ -104,8 +106,10 @@ public class UserControllerTest {
         try {
             userController.getUserByUserId(userId);
             Assertions.fail("Expected InvalidUserIdException not thrown");
-        } catch (Exception ex) {
+        } catch (InvalidUserIdException ex) {
             Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
         }
     }
 
@@ -119,8 +123,10 @@ public class UserControllerTest {
         try {
             userController.getUserByUserId(userId);
             Assertions.fail("Expected InvalidUserIdException not thrown");
-        } catch (Exception ex) {
+        } catch (InvalidUserIdException ex) {
             Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
         }
     }
 
@@ -134,7 +140,7 @@ public class UserControllerTest {
 
         // mock the service call
         Mockito.when(mockUserService.getUserProfileByUserId(userId)).thenReturn(
-            TestDataFactory.createTestUserProfile(userId)
+            TestDataFactory.createTestUserProfileDto(userId)
         );
 
         ResponseEntity<UserProfileResponseDto> response = userController.getUserProfileByUserId(userId);
@@ -166,8 +172,10 @@ public class UserControllerTest {
         try {
             userController.getUserProfileByUserId(userId);
             Assertions.fail("Expected InvalidUserIdException not thrown");
-        } catch (Exception ex) {
+        } catch (InvalidUserIdException ex) {
             Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
         }
     }
 
@@ -182,8 +190,10 @@ public class UserControllerTest {
         try {
             userController.getUserProfileByUserId(userId);
             Assertions.fail("Expected InvalidUserIdException not thrown");
-        } catch (Exception ex) {
+        } catch (InvalidUserIdException ex) {
             Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
         }
     }
 
@@ -199,7 +209,7 @@ public class UserControllerTest {
         Mockito.when(mockUserService.getUserAddressesByUserId(userId)).thenReturn(
             UserAddressesResponseDto.builder()
                 .userId(userId)
-                .addresses(List.of(TestDataFactory.createTestUserAddress(userId)))
+                .addresses(List.of(TestDataFactory.createTestUserAddressDto(userId)))
                 .build()
         );
 
@@ -251,8 +261,10 @@ public class UserControllerTest {
         try {
             userController.getUserAddressesByUserId(userId);
             Assertions.fail("Expected InvalidUserIdException not thrown");
-        } catch (Exception ex) {
+        } catch (InvalidUserIdException ex) {
             Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
         }
     }
 
@@ -267,8 +279,120 @@ public class UserControllerTest {
         try {
             userController.getUserAddressesByUserId(userId);
             Assertions.fail("Expected InvalidUserIdException not thrown");
-        } catch (Exception ex) {
+        } catch (InvalidUserIdException ex) {
             Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController /users/{userId}/addresses/{addressId} endpoint returns a 200 status code along w/ a
+     * complete UserAddress.
+     */
+    @Test
+    public void testGetUserAddressById_ValidIds_ReturnExpectedAddress() throws Exception {
+        String userId = TestDataFactory.TEST_USER_ID;
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+
+        // mock user service response
+        Mockito.when(mockUserService.getUserAddressById(userId, addressId)).thenReturn(
+            TestDataFactory.createTestUserAddressDto(userId)
+        );
+
+        ResponseEntity<UserAddressResponseDto> response = userController.getUserAddressById(userId, addressId);
+
+        // validate response
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(200, response.getStatusCode().value());
+
+        // validate address
+        UserAddressResponseDto userAddressResponse = response.getBody();
+        Assertions.assertNotNull(userAddressResponse);
+        Assertions.assertEquals(userId, userAddressResponse.getUserId());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_ADDRESS_LINE_1, userAddressResponse.getAddressLine1());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_ADDRESS_TYPE, userAddressResponse.getAddressType());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_CITY, userAddressResponse.getCity());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_STATE, userAddressResponse.getState());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_ZIP_CODE, userAddressResponse.getZipCode());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_COUNTRY, userAddressResponse.getCountry());
+        Assertions.assertNotNull(userAddressResponse.getCreatedAt());
+        Assertions.assertNotNull(userAddressResponse.getUpdatedAt());
+    }
+
+    /**
+     * Test the UserController /users/{userId}/addresses/{addressId} endpoint throws an InvalidUserIdException when the
+     * user id is empty.
+     */
+    @Test
+    public void testGetUserAddressById_MissingUserId_ThrowsInvalidUserIdException() {
+        String userId = "";
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+
+        try {
+            userController.getUserAddressById(userId, addressId);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController /users/{userId}/addresses/{addressId} endpoint throws an InvalidUserIdException when the
+     * user id is null.
+     */
+    @Test
+    public void testGetUserAddressById_NullUserId_ThrowsInvalidUserIdException() {
+        String userId = null;
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+
+        try {
+            userController.getUserAddressById(userId, addressId);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController /users/{userId}/addresses/{addressId} endpoint throws an InvalidRequestData exception
+     * when the address id is empty.
+     */
+    @Test
+    public void testGetUserAddressById_MissingAddressId_ThrowsInvalidRequestData() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        String addressId = "";
+
+        try {
+            userController.getUserAddressById(userId, addressId);
+            Assertions.fail("Expected InvalidRequestData exception not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Invalid null or empty address id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController /users/{userId}/addresses/{addressId} endpoint throws an InvalidRequestData exception
+     * when the address id is null.
+     */
+    @Test
+    public void testGetUserAddressById_NullAddressId_ThrowsInvalidRequestData() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        String addressId = null;
+
+        try {
+            userController.getUserAddressById(userId, addressId);
+            Assertions.fail("Expected InvalidRequestData exception not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Invalid null or empty address id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
         }
     }
 

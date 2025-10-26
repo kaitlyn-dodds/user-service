@@ -20,7 +20,7 @@ public class UserAddressesResponseDtoTest {
      */
     @Test
     public void testSerialization() throws JsonProcessingException {
-        UserAddressesResponseDto response = TestDataFactory.createTestUserAddresses();
+        UserAddressesResponseDto response = TestDataFactory.createTestUserAddressesDto();
 
         String expectedJson = "{"
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
@@ -47,7 +47,7 @@ public class UserAddressesResponseDtoTest {
      */
     @Test
     public void testDeserialization() throws JsonProcessingException {
-        UserAddressesResponseDto response = TestDataFactory.createTestUserAddresses();
+        UserAddressesResponseDto response = TestDataFactory.createTestUserAddressesDto();
 
 
         String jsonString = "{"

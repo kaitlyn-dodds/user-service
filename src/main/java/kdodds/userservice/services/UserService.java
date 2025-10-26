@@ -7,7 +7,7 @@ import kdodds.userservice.dto.responses.UserResponseDto;
 import kdodds.userservice.entities.User;
 import kdodds.userservice.entities.UserAddress;
 import kdodds.userservice.entities.UserProfile;
-import kdodds.userservice.exceptions.models.exceptions.InvalidRequestData;
+import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
 import kdodds.userservice.exceptions.models.exceptions.UserNotFoundException;
@@ -132,7 +132,7 @@ public class UserService {
     public UserAddressResponseDto getUserAddressById(String userId, String addressId) throws Exception {
         // both ids should be valid UUIDs
         if (userId == null || userId.isEmpty() || addressId == null || addressId.isEmpty()) {
-            throw new InvalidRequestData("Invalid request data.");
+            throw new InvalidRequestDataException("Invalid request data.");
         }
 
         Optional<UserAddress> address;

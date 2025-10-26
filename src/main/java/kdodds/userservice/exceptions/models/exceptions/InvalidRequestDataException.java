@@ -4,14 +4,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-public class InvalidRequestData extends RuntimeException {
+public class InvalidRequestDataException extends RuntimeException {
 
     /**
      * Constructor.
      *
      * @param message The error message.
      */
-    public InvalidRequestData(String message) {
+    public InvalidRequestDataException(String message) {
         super(message);
     }
 

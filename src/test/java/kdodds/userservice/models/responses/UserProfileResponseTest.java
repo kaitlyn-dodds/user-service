@@ -20,7 +20,7 @@ public class UserProfileResponseTest {
      */
     @Test
     public void testSerialization() throws JsonProcessingException {
-        UserProfileResponseDto profile = TestDataFactory.createTestUserProfile(TestDataFactory.TEST_USER_ID);
+        UserProfileResponseDto profile = TestDataFactory.createTestUserProfileDto(TestDataFactory.TEST_USER_ID);
 
         // expected json
         String expected = "{"

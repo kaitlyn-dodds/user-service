@@ -1,7 +1,7 @@
 package kdodds.userservice.exceptions;
 
 import kdodds.userservice.exceptions.models.ErrorResponse;
-import kdodds.userservice.exceptions.models.exceptions.InvalidRequestData;
+import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
 import kdodds.userservice.exceptions.models.exceptions.UserNotFoundException;
@@ -37,7 +37,7 @@ public class UserExceptionHandler {
      * @param ex The RuntimeException object.
      * @return An ErrorResponse wrapped in a ResponseEntity.
      */
-    @ExceptionHandler({InvalidUserIdException.class, InvalidRequestData.class})
+    @ExceptionHandler({InvalidUserIdException.class, InvalidRequestDataException.class})
     public ResponseEntity<ErrorResponse> handleInvalidRequestDataException(RuntimeException ex) {
         ErrorResponse response = ErrorResponse.builder()
             .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
