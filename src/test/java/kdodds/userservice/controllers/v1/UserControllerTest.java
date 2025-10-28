@@ -139,7 +139,7 @@ public class UserControllerTest {
         String userId = TestDataFactory.TEST_USER_ID;
 
         // mock the service call
-        Mockito.when(mockUserService.getUserProfileByUserId(userId)).thenReturn(
+        Mockito.when(mockUserService.getUserProfileDtoByUserId(userId)).thenReturn(
             TestDataFactory.createTestUserProfileDto(userId)
         );
 
@@ -206,7 +206,7 @@ public class UserControllerTest {
         String userId = TestDataFactory.TEST_USER_ID;
 
         // mock service call
-        Mockito.when(mockUserService.getUserAddressesByUserId(userId)).thenReturn(
+        Mockito.when(mockUserService.getUserAddressesDtoByUserId(userId)).thenReturn(
             UserAddressesResponseDto.builder()
                 .userId(userId)
                 .addresses(List.of(TestDataFactory.createTestUserAddressDto(userId)))
@@ -296,7 +296,7 @@ public class UserControllerTest {
         String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
 
         // mock user service response
-        Mockito.when(mockUserService.getUserAddressById(userId, addressId)).thenReturn(
+        Mockito.when(mockUserService.getUserAddressDtoById(userId, addressId)).thenReturn(
             TestDataFactory.createTestUserAddressDto(userId)
         );
 

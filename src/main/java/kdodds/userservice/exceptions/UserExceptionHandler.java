@@ -5,6 +5,7 @@ import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataExcepti
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
 import kdodds.userservice.exceptions.models.exceptions.UserNotFoundException;
+import kdodds.userservice.exceptions.models.exceptions.UserProfileNotFound;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,7 +20,7 @@ public class UserExceptionHandler {
      * @param ex The RuntimeException object.
      * @return An ErrorResponse wrapped in a ResponseEntity.
      */
-    @ExceptionHandler({UserNotFoundException.class, UserAddressNotFound.class})
+    @ExceptionHandler({UserNotFoundException.class, UserAddressNotFound.class, UserProfileNotFound.class})
     public ResponseEntity<ErrorResponse> handleDataNotFound(RuntimeException ex) {
         ErrorResponse error = ErrorResponse.builder()
             .error(HttpStatus.NOT_FOUND.getReasonPhrase())

@@ -59,7 +59,7 @@ public class UserController {
             throw new InvalidUserIdException();
         }
 
-        UserProfileResponseDto userProfileResponseDto = userService.getUserProfileByUserId(userId);
+        UserProfileResponseDto userProfileResponseDto = userService.getUserProfileDtoByUserId(userId);
 
         return new ResponseEntity<>(
             userProfileResponseDto,
@@ -80,7 +80,7 @@ public class UserController {
             throw new InvalidUserIdException();
         }
 
-        UserAddressesResponseDto addressesResponseDto = userService.getUserAddressesByUserId(userId);
+        UserAddressesResponseDto addressesResponseDto = userService.getUserAddressesDtoByUserId(userId);
 
         return new ResponseEntity<>(
             addressesResponseDto,
@@ -108,7 +108,7 @@ public class UserController {
             throw new InvalidRequestDataException("Invalid null or empty address id");
         }
 
-        UserAddressResponseDto response = userService.getUserAddressById(userId, addressId);
+        UserAddressResponseDto response = userService.getUserAddressDtoById(userId, addressId);
 
         return new ResponseEntity<>(
             response,

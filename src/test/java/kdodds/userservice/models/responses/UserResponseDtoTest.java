@@ -31,7 +31,7 @@ public class UserResponseDtoTest {
             + "\"profile_image_url\":\"" + TestDataFactory.TEST_USER_PROFILE_IMAGE_URL + "\","
             + "\"addresses\":["
             + "{"
-            + "\"id\":\"" + response.getAddresses().getFirst().getId() + "\","
+            + "\"address_id\":\"" + response.getAddresses().getFirst().getAddressId() + "\","
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"address_type\":\"" + TestDataFactory.TEST_USER_ADDRESS_TYPE + "\","
             + "\"address_line_1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
@@ -64,7 +64,7 @@ public class UserResponseDtoTest {
             + "\"profile_image_url\":\"" + TestDataFactory.TEST_USER_PROFILE_IMAGE_URL + "\","
             + "\"addresses\":["
             + "{"
-            + "\"id\":\"addr-12345\","
+            + "\"address_id\":\"addr-12345\","
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"address_type\":\"" + TestDataFactory.TEST_USER_ADDRESS_TYPE + "\","
             + "\"address_line_1\":\"" + TestDataFactory.TEST_USER_ADDRESS_LINE_1 + "\","
@@ -89,7 +89,7 @@ public class UserResponseDtoTest {
         Assertions.assertEquals(TestDataFactory.TEST_USER_PHONE_NUMBER, response.getPhoneNumber());
         Assertions.assertEquals(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL, response.getProfileImageUrl());
         Assertions.assertEquals(1, response.getAddresses().size());
-        Assertions.assertEquals("addr-12345", response.getAddresses().getFirst().getId());
+        Assertions.assertEquals("addr-12345", response.getAddresses().getFirst().getAddressId());
         Assertions.assertEquals("2024-01-01T12:00:00Z", response.getCreatedAt().toString());
         Assertions.assertEquals("2024-01-02T12:00:00Z", response.getUpdatedAt().toString());
     }

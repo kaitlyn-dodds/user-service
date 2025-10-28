@@ -11,6 +11,7 @@ import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataExcepti
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
 import kdodds.userservice.exceptions.models.exceptions.UserNotFoundException;
+import kdodds.userservice.exceptions.models.exceptions.UserProfileNotFound;
 import kdodds.userservice.repositories.UserAddressRepository;
 import kdodds.userservice.repositories.UserProfileRepository;
 import kdodds.userservice.repositories.UserRepository;
@@ -68,7 +69,7 @@ public class UserService {
      * @param userId User id to get the profile.
      * @return UserProfileResponseDto
      */
-    public UserProfileResponseDto getUserProfileByUserId(String userId) throws Exception {
+    public UserProfileResponseDto getUserProfileDtoByUserId(String userId) throws Exception {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
         }
@@ -79,14 +80,14 @@ public class UserService {
         } catch (Exception ex) {
             log.error("Error getting user profile for user id: {}", userId, ex);
             throw new Exception(
-                String.format("Find profile by id for userId %s failed for unknown reasons", userId),
+                String.format("Find user profile by id for userId %s failed for unknown reasons", userId),
                 ex
             );
         }
 
         if (profile.isEmpty()) {
             log.warn("User profile not found for id: {}", userId);
-            throw new UserNotFoundException("User profile not found for id: " + userId);
+            throw new UserProfileNotFound(userId);
         }
 
         return UserProfileResponseDto.fromEntity(profile.get());
@@ -98,7 +99,7 @@ public class UserService {
      * @param userId User id to use to get the addresses.
      * @return UserAddressesResponseDto
      */
-    public UserAddressesResponseDto getUserAddressesByUserId(String userId) throws Exception {
+    public UserAddressesResponseDto getUserAddressesDtoByUserId(String userId) throws Exception {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
         }
@@ -115,8 +116,8 @@ public class UserService {
         }
 
         if (addresses.isEmpty()) {
-            log.warn("User addresses not found for id: {}", userId);
-            throw new UserAddressNotFound("User addresses not found for id: " + userId);
+            log.warn("No user addresses found for id: {}", userId);
+            addresses = Optional.of(List.of()); // return empty list
         }
 
         return UserAddressesResponseDto.from(userId, addresses.get());
@@ -129,7 +130,7 @@ public class UserService {
      * @param addressId The address id to use for the test data.
      * @return UserAddressResponseDto
      */
-    public UserAddressResponseDto getUserAddressById(String userId, String addressId) throws Exception {
+    public UserAddressResponseDto getUserAddressDtoById(String userId, String addressId) throws Exception {
         // both ids should be valid UUIDs
         if (userId == null || userId.isEmpty() || addressId == null || addressId.isEmpty()) {
             throw new InvalidRequestDataException("Invalid request data.");
@@ -142,16 +143,20 @@ public class UserService {
             log.error("Error getting user address for user id: {}, address id: {}", userId, addressId, ex);
             throw new Exception(
                 String.format(
-                    "Find address by id for address id %s, user id %s, failed for unknown reasons", addressId, userId
+                    "Find address by id for userId %s and addressId %s failed for unknown reasons", userId, addressId
                 ),
                 ex
             );
         }
 
         if (address.isEmpty()) {
-            log.warn("User address not found for address id: {}", addressId);
+            log.warn("User address not found for address id: {}, user id: {}", addressId, userId);
             throw new UserAddressNotFound(
-                String.format("Address not found for address id %s", addressId)
+                String.format(
+                    "Find address by id for userId %s and addressId %s failed for unknown reasons",
+                    userId,
+                    addressId
+                )
             );
         }
 

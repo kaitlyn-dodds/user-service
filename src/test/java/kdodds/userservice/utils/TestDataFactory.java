@@ -9,6 +9,7 @@ import kdodds.userservice.entities.UserAddress;
 import kdodds.userservice.entities.UserProfile;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -126,7 +127,7 @@ public class TestDataFactory {
      */
     public static UserAddressResponseDto createTestUserAddressDto(String userId) {
         return UserAddressResponseDto.builder()
-            .id(TestDataFactory.TEST_ADDRESS_ID_1)
+            .addressId(TestDataFactory.TEST_ADDRESS_ID_1)
             .userId(userId)
             .addressLine1(TestDataFactory.TEST_USER_ADDRESS_LINE_1)
             .addressType(TestDataFactory.TEST_USER_ADDRESS_TYPE)
@@ -142,13 +143,7 @@ public class TestDataFactory {
     /**
      * Creates a test User entity.
      */
-    public static User createTestUserEntity(String userId) {
-        UserProfile profile = TestDataFactory.createTestUserProfileEntity(userId);
-
-        List<UserAddress> addresses = List.of(
-            TestDataFactory.createTestUserAddressEntity(userId)
-        );
-
+    public static User createTestUserEntity(String userId, boolean withAddresses) {
         // User
         User user = new User();
         user.setId(UUID.fromString(userId));
@@ -158,11 +153,24 @@ public class TestDataFactory {
         user.setStatus("ACTIVE");
         user.setCreatedAt(Instant.now());
         user.setUpdatedAt(Instant.now());
-        user.setUserProfile(profile);
+
+        // Addresses
+        List<UserAddress> addresses = new ArrayList<>();
+        if (withAddresses) {
+            addresses = List.of(
+                TestDataFactory.createTestUserAddressEntity(userId)
+            );
+
+            // set user on addresses (necessary for mapper functions)
+            addresses.forEach(address -> address.setUser(user));
+        }
         user.setAddresses(addresses);
 
-        // set user on addresses (necessary for mapper functions)
-        addresses.forEach(address -> address.setUser(user));
+        // Profile
+        UserProfile profile = TestDataFactory.createTestUserProfileEntity(userId);
+        user.setUserProfile(profile);
+
+
 
         return user;
     }
@@ -200,7 +208,20 @@ public class TestDataFactory {
         address.setCreatedAt(Instant.now());
         address.setUpdatedAt(Instant.now());
 
+        // set user on address (necessary for mapper functions)
+        address.setUser(TestDataFactory.createTestUserEntity(userId, false));
+
         return address;
+    }
+
+    /**
+     * Create test UserAddressesResponseDto.
+     */
+    public static UserAddressesResponseDto createTestUserAddressesResponseDto(String userId) {
+        return UserAddressesResponseDto.builder()
+            .userId(userId)
+            .addresses(List.of(TestDataFactory.createTestUserAddressDto(userId)))
+            .build();
     }
 
 }

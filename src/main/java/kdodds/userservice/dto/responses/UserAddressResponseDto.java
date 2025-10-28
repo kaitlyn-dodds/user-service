@@ -16,8 +16,8 @@ import java.time.Instant;
 @Builder
 public class UserAddressResponseDto {
 
-    @JsonProperty("id")
-    private String id;
+    @JsonProperty("address_id")
+    private String addressId;
 
     @JsonProperty("user_id")
     private String userId;
@@ -57,7 +57,7 @@ public class UserAddressResponseDto {
      */
     public static UserAddressResponseDto fromEntity(UserAddress userAddress) {
         return UserAddressResponseDto.builder()
-            .id(userAddress.getId().toString())
+            .addressId(userAddress.getId().toString())
             .userId(userAddress.getUser().getId().toString())
             .addressType(userAddress.getAddressType())
             .addressLine1(userAddress.getAddressLine1())
