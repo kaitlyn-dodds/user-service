@@ -1,0 +1,669 @@
+openapi: 3.0.4
+info:
+  title: User Service
+  description: |-
+    A basic user service for use on my local network. Facilitates the creation and management of personal projects.
+  version: 0.0.1
+
+servers:
+  - url: http://localhost:8080/api/v1
+
+tags:
+  - name: user
+    description: User operations.
+  - name: user-profile
+    description: User profile operations.
+  - name: user-address
+    description: User address operations.
+
+paths:
+  /users:
+    get:
+      tags:
+        - user
+      summary: Lists all users.
+      description: Returns a list of all users.
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    post:
+      tags:
+        - user
+      summary: Creates a user.
+      description: Create a new user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          description: New user created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /users/{userId}:
+    get:
+      tags:
+        - user
+      summary: Find user by ID.
+      description: Returns complete user information for a user.
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    put:
+      tags:
+        - user
+      summary: Updates a user with JSON body.
+      description: Updates a user resource based on the JSON body.
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user that needs to be updated
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    delete:
+      tags:
+        - user
+      summary: Deletes a user.
+      description: Delete a user.
+      parameters:
+        - name: userId
+          in: path
+          description: User id to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User deleted
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /users/{userId}/profile:
+    get:
+      tags:
+        - user-profile
+      summary: Get user profile.
+      description: Returns complete user profile information for a user.
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    put:
+      tags:
+        - user-profile
+      summary: Updates a user profile with JSON body.
+      description: Updates a user profile resource based on the JSON body.
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user profile that needs to be updated
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /users/{userId}/addresses:
+    get:
+      tags:
+        - user-address
+      summary: Find user addresses by ID.
+      description: Returns all user address information for a user.
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAddresses'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    post:
+      tags:
+        - user-address
+      summary: Creates a user address.
+      description: Create a new user address.
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAddress'
+        required: true
+      responses:
+        '201':
+          description: New user address created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAddress'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+  /users/{userId}/addresses/{addressId}:
+    get:
+      tags:
+        - user-address
+      summary: Find user address by ID.
+      description: Returns a user address information for a user.
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: addressId
+          in: path
+          description: ID of user address to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAddress'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    put:
+      tags:
+        - user-address
+      summary: Updates a user address with JSON body.
+      description: Updates a user address resource based on the JSON body.
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user address that needs to be updated
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: addressId
+          in: path
+          description: ID of user address that needs to be updated
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAddress'
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAddress'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/ResourceNotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+    delete:
+      tags:
+        - user-address
+      summary: Deletes a user address.
+      description: Delete a user address.
+      parameters:
+        - name: userId
+          in: path
+          description: User id to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: addressId
+          in: path
+          description: Address id to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User address deleted
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          example: 9b3e3b2a-1a57-4b6d-b0b1-5c8d2c5c1f12
+          description: Unique identifier for the user.
+        username:
+          type: string
+          example: silverfalcon42
+          description: Unique username chosen by the user.
+        email:
+          type: string
+          format: email
+          example: falcon42@example.com
+          description: User's email address.
+        first_name:
+          type: string
+          example: Jordan
+          description: User's first name.
+        last_name:
+          type: string
+          example: Rivers
+          description: User's last name.
+        phone_number:
+          type: string
+          example: +1-415-555-2098
+          description: User's phone number in E.164 format.
+        profile_image_url:
+          type: string
+          format: uri
+          example: https://cdn.example.com/profiles/silverfalcon42.png
+          description: URL to the user's profile image.
+        addresses:
+          type: array
+          description: List of addresses associated with the user.
+          items:
+            $ref: '#/components/schemas/UserAddress'
+        created_at:
+          type: string
+          format: date-time
+          example: 2025-09-18T11:23:54.167Z
+          description: Timestamp when the user was created.
+        updated_at:
+          type: string
+          format: date-time
+          example: 2025-10-10T07:45:19.682Z
+          description: Timestamp when the user was last updated.
+      required:
+        - user_id
+        - username
+        - email
+        - first_name
+        - last_name
+        - created_at
+        - updated_at
+      example:
+        user_id: 9b3e3b2a-1a57-4b6d-b0b1-5c8d2c5c1f12
+        username: silverfalcon42
+        email: falcon42@example.com
+        first_name: Jordan
+        last_name: Rivers
+        phone_number: +1-415-555-2098
+        profile_image_url: https://cdn.example.com/profiles/silverfalcon42.png
+        addresses:
+          - id: 6f4cbb67-85a7-4b90-bb32-6ff51322a3df
+            user_id: 9b3e3b2a-1a57-4b6d-b0b1-5c8d2c5c1f12
+            address_type: Home
+            address_line_1: 742 Evergreen Terrace
+            address_line_2: Apt 3B
+            city: Springfield
+            state: IL
+            zip_code: 62704
+            country: USA
+            created_at: 2025-09-18T11:25:10.451Z
+            updated_at: 2025-10-10T07:47:02.312Z
+          - id: 3c12e7e1-4784-4b4e-9ef7-9b923bca15e8
+            user_id: 9b3e3b2a-1a57-4b6d-b0b1-5c8d2c5c1f12
+            address_type: Business
+            address_line_1: 1200 Market Street
+            address_line_2: Suite 400
+            city: Riverdale
+            state: NY
+            zip_code: 10471
+            country: USA
+            created_at: 2025-09-18T12:00:00.000Z
+            updated_at: 2025-10-10T08:00:00.000Z
+        created_at: 2025-09-18T11:23:54.167Z
+        updated_at: 2025-10-10T07:45:19.682Z
+    UserAddress:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 6f4cbb67-85a7-4b90-bb32-6ff51322a3df
+          description: Unique identifier for the address.
+        user_id:
+          type: string
+          format: uuid
+          example: 9b3e3b2a-1a57-4b6d-b0b1-5c8d2c5c1f12
+          description: The user ID this address belongs to.
+        address_type:
+          type: string
+          example: Business
+          description: Type of address (e.g., Home, Business, Other).
+        address_line_1:
+          type: string
+          example: 742 Evergreen Terrace
+          description: Primary address line.
+        address_line_2:
+          type: string
+          nullable: true
+          example: Apt 3B
+          description: Optional secondary address line.
+        city:
+          type: string
+          example: Springfield
+          description: City of the address.
+        state:
+          type: string
+          example: IL
+          description: State or region of the address.
+        zip_code:
+          type: string
+          example: 62704
+          description: ZIP or postal code.
+        country:
+          type: string
+          example: USA
+          description: Country of the address.
+        created_at:
+          type: string
+          format: date-time
+          example: 2025-09-18T11:25:10.451Z
+          description: Timestamp when the address was created.
+        updated_at:
+          type: string
+          format: date-time
+          example: 2025-10-10T07:47:02.312Z
+          description: Timestamp when the address was last updated.
+      required:
+        - id
+        - user_id
+        - address_type
+        - address_line_1
+        - city
+        - state
+        - zip_code
+        - country
+        - created_at
+        - updated_at
+      example:
+        id: 6f4cbb67-85a7-4b90-bb32-6ff51322a3df
+        user_id: 9b3e3b2a-1a57-4b6d-b0b1-5c8d2c5c1f12
+        address_type: Home
+        address_line_1: 123 Maple Avenue
+        address_line_2: Apt 2C
+        city: Brookfield
+        state: WI
+        zip_code: 53005
+        country: USA
+        created_at: 2025-09-18T11:25:10.451Z
+        updated_at: 2025-10-10T07:47:02.312Z
+    UserProfile:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          example: 0f7b3a10-7e24-4f1c-b61e-1b7a0ce5c552
+          description: Unique identifier for the user.
+        first_name:
+          type: string
+          example: Taylor
+          description: User's first name.
+        last_name:
+          type: string
+          example: Monroe
+          description: User's last name.
+        phone_number:
+          type: string
+          example: +1-720-555-4432
+          description: User's phone number in E.164 format.
+        profile_image_url:
+          type: string
+          format: uri
+          example: https://cdn.example.com/profiles/taylor-monroe.png
+          description: URL to the user's profile image.
+        created_at:
+          type: string
+          format: date-time
+          example: 2025-09-30T09:12:44.128Z
+          description: Timestamp when the profile was created.
+        updated_at:
+          type: string
+          format: date-time
+          example: 2025-10-20T15:40:22.783Z
+          description: Timestamp when the profile was last updated.
+      required:
+        - user_id
+        - first_name
+        - last_name
+        - created_at
+        - updated_at
+      example:
+        user_id: 0f7b3a10-7e24-4f1c-b61e-1b7a0ce5c552
+        first_name: Taylor
+        last_name: Monroe
+        phone_number: +1-720-555-4432
+        profile_image_url: https://cdn.example.com/profiles/taylor-monroe.png
+        created_at: 2025-09-30T09:12:44.128Z
+        updated_at: 2025-10-20T15:40:22.783Z
+    UserAddresses:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          example: 2c45f3a1-0e57-4b7b-b2d3-6ac71b2ff942
+          description: Unique identifier for the user.
+        addresses:
+          type: array
+          description: List of addresses associated with the user.
+          items:
+            $ref: '#/components/schemas/UserAddress'
+      required:
+        - user_id
+        - addresses
+      example:
+        user_id: 2c45f3a1-0e57-4b7b-b2d3-6ac71b2ff942
+        addresses:
+          - id: e6f1d2b9-8a1a-45a2-b0cd-fb8dbb4cde56
+            user_id: 2c45f3a1-0e57-4b7b-b2d3-6ac71b2ff942
+            address_type: Home
+            address_line_1: 456 Oakwood Drive
+            address_line_2: Apt 5C
+            city: Riverview
+            state: TX
+            zip_code: 75204
+            country: USA
+            created_at: 2025-09-15T12:30:00.000Z
+            updated_at: 2025-10-10T09:15:00.000Z
+          - id: 8b1a91e2-f781-4dc9-8a03-3c08f9b8f4ac
+            user_id: 2c45f3a1-0e57-4b7b-b2d3-6ac71b2ff942
+            address_type: Business
+            address_line_1: 890 Commerce Way
+            address_line_2: Suite 220
+            city: Lakeside
+            state: TX
+            zip_code: 75001
+            country: USA
+            created_at: 2025-09-15T12:35:00.000Z
+            updated_at: 2025-10-10T09:20:00.000Z
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - status
+        - error
+        - message
+  responses:
+    UnexpectedError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            example:
+              value:
+                status: "500"
+                error: "Internal Server Error"
+                message: "An unexpected error occurred."
+    InvalidInput:
+      description: Invalid input provided
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            example:
+              value:
+                status: "400"
+                error: "Bad Request"
+                message: "Invalid input provided."
+    ResourceNotFound:
+      description: Requested resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            example:
+              value:
+                status: "404"
+                error: "Not Found"
+                message: "The requested user was not found."
