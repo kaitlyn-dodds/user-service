@@ -29,9 +29,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UsersResponse'
         default:
           $ref: '#/components/responses/UnexpectedError'
     post:
@@ -428,7 +426,7 @@ components:
         phone_number: +1-415-555-2098
         profile_image_url: https://cdn.example.com/profiles/silverfalcon42.png
         addresses:
-          - id: 6f4cbb67-85a7-4b90-bb32-6ff51322a3df
+          - address_id: 6f4cbb67-85a7-4b90-bb32-6ff51322a3df
             user_id: 9b3e3b2a-1a57-4b6d-b0b1-5c8d2c5c1f12
             address_type: Home
             address_line_1: 742 Evergreen Terrace
@@ -439,7 +437,7 @@ components:
             country: USA
             created_at: 2025-09-18T11:25:10.451Z
             updated_at: 2025-10-10T07:47:02.312Z
-          - id: 3c12e7e1-4784-4b4e-9ef7-9b923bca15e8
+          - address_id: 3c12e7e1-4784-4b4e-9ef7-9b923bca15e8
             user_id: 9b3e3b2a-1a57-4b6d-b0b1-5c8d2c5c1f12
             address_type: Business
             address_line_1: 1200 Market Street
@@ -455,7 +453,7 @@ components:
     UserAddress:
       type: object
       properties:
-        id:
+        address_id:
           type: string
           format: uuid
           example: 6f4cbb67-85a7-4b90-bb32-6ff51322a3df
@@ -505,7 +503,7 @@ components:
           example: 2025-10-10T07:47:02.312Z
           description: Timestamp when the address was last updated.
       required:
-        - id
+        - address_id
         - user_id
         - address_type
         - address_line_1
@@ -516,7 +514,7 @@ components:
         - created_at
         - updated_at
       example:
-        id: 6f4cbb67-85a7-4b90-bb32-6ff51322a3df
+        address_id: 6f4cbb67-85a7-4b90-bb32-6ff51322a3df
         user_id: 9b3e3b2a-1a57-4b6d-b0b1-5c8d2c5c1f12
         address_type: Home
         address_line_1: 123 Maple Avenue
@@ -595,7 +593,7 @@ components:
       example:
         user_id: 2c45f3a1-0e57-4b7b-b2d3-6ac71b2ff942
         addresses:
-          - id: e6f1d2b9-8a1a-45a2-b0cd-fb8dbb4cde56
+          - address_id: e6f1d2b9-8a1a-45a2-b0cd-fb8dbb4cde56
             user_id: 2c45f3a1-0e57-4b7b-b2d3-6ac71b2ff942
             address_type: Home
             address_line_1: 456 Oakwood Drive
@@ -606,7 +604,7 @@ components:
             country: USA
             created_at: 2025-09-15T12:30:00.000Z
             updated_at: 2025-10-10T09:15:00.000Z
-          - id: 8b1a91e2-f781-4dc9-8a03-3c08f9b8f4ac
+          - address_id: 8b1a91e2-f781-4dc9-8a03-3c08f9b8f4ac
             user_id: 2c45f3a1-0e57-4b7b-b2d3-6ac71b2ff942
             address_type: Business
             address_line_1: 890 Commerce Way
@@ -617,6 +615,36 @@ components:
             country: USA
             created_at: 2025-09-15T12:35:00.000Z
             updated_at: 2025-10-10T09:20:00.000Z
+    UsersResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          description: List of all users.
+          items:
+            $ref: '#/components/schemas/User'
+      required:
+        - users
+      example:
+        users:
+          - user_id: 9b3e3b2a-1a57-4b6d-b0b1-5c8d2c5c1f12
+            username: silverfalcon42
+            email: falcon42@example.com
+            first_name: Jordan
+            last_name: Rivers
+            phone_number: +1-415-555-2098
+            profile_image_url: https://cdn.example.com/profiles/silverfalcon42.png
+            created_at: 2025-09-18T11:23:54.167Z
+            updated_at: 2025-10-10T07:45:19.682Z
+          - user_id: 2d31c6b9-7b17-4c2d-9218-6c0ff9a3a8f5
+            username: brightlion11
+            email: brightlion@example.com
+            first_name: Riley
+            last_name: Chen
+            phone_number: +1-720-555-4400
+            profile_image_url: https://cdn.example.com/profiles/brightlion11.png
+            created_at: 2025-09-20T08:12:00.000Z
+            updated_at: 2025-10-11T10:55:10.000Z
     Error:
       type: object
       properties:
