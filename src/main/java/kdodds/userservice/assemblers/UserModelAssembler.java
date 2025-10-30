@@ -35,6 +35,22 @@ public class UserModelAssembler
             throw new RuntimeException(e);
         }
 
+        // add links for addresses
+        if (userDto.getAddresses() != null) {
+            userDto.getAddresses().forEach(addressDto -> {
+                try {
+                    addressDto.add(linkTo(methodOn(UserController.class)
+                        .getUserAddressById(
+                            userDto.getUserId(),
+                            addressDto.getAddressId()
+                        )).withSelfRel());
+                } catch (Exception e) {
+                    log.error("Error creating link for UserAddressResponseDto: {}", e.getMessage());
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
         return EntityModel.of(userDto);
     }
 

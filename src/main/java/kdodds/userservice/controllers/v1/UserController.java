@@ -1,6 +1,7 @@
 package kdodds.userservice.controllers.v1;
 
 import kdodds.userservice.assemblers.UserAddressModelAssembler;
+import kdodds.userservice.assemblers.UserAddressesModelAssembler;
 import kdodds.userservice.assemblers.UserModelAssembler;
 import kdodds.userservice.assemblers.UserProfileModelAssembler;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
@@ -35,6 +36,8 @@ public class UserController {
     private UserProfileModelAssembler userProfileModelAssembler;
 
     private UserAddressModelAssembler userAddressModelAssembler;
+
+    private UserAddressesModelAssembler userAddressesModelAssembler;
 
     /**
      * Gets all user data for a given user id.
@@ -85,7 +88,7 @@ public class UserController {
      * @return UserAddressesResponse object.
      */
     @GetMapping("/{userId}/addresses")
-    public ResponseEntity<UserAddressesResponseDto> getUserAddressesByUserId(@PathVariable String userId)
+    public ResponseEntity<EntityModel<UserAddressesResponseDto>> getUserAddressesByUserId(@PathVariable String userId)
         throws Exception {
         if (userId == null || userId.isEmpty()) {
             throw new InvalidUserIdException();
@@ -94,7 +97,7 @@ public class UserController {
         UserAddressesResponseDto addressesResponseDto = userService.getUserAddressesDtoByUserId(userId);
 
         return new ResponseEntity<>(
-            addressesResponseDto,
+            userAddressesModelAssembler.toModel(addressesResponseDto),
             HttpStatus.OK
         );
     }

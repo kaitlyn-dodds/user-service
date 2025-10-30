@@ -7,6 +7,7 @@ import kdodds.userservice.entities.UserAddress;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 @Jacksonized
 @Data
 @Builder
-public class UserAddressesResponseDto {
+public class UserAddressesResponseDto extends RepresentationModel<UserAddressesResponseDto> {
 
     @JsonProperty("user_id")
     private String userId;

@@ -1,6 +1,7 @@
 package kdodds.userservice.controllers.v1;
 
 import kdodds.userservice.assemblers.UserAddressModelAssembler;
+import kdodds.userservice.assemblers.UserAddressesModelAssembler;
 import kdodds.userservice.assemblers.UserModelAssembler;
 import kdodds.userservice.assemblers.UserProfileModelAssembler;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
@@ -38,6 +39,9 @@ public class UserControllerTest {
     private UserAddressModelAssembler mockUserAddressModelAssembler;
 
     @Mock
+    private UserAddressesModelAssembler mockUserAddressesModelAssembler;
+
+    @Mock
     private UserService mockUserService;
 
     @InjectMocks
@@ -70,6 +74,13 @@ public class UserControllerTest {
             .thenAnswer(invocation -> {
                 UserAddressResponseDto argUserAddressDto = invocation.getArgument(0);
                 return EntityModel.of(argUserAddressDto);
+            });
+
+        // mock the user addresses model assembler to just return the input wrapped in an EntityModel
+        Mockito.when(mockUserAddressesModelAssembler.toModel(Mockito.any(UserAddressesResponseDto.class)))
+            .thenAnswer(invocation -> {
+                UserAddressesResponseDto argUserAddressesDto = invocation.getArgument(0);
+                return EntityModel.of(argUserAddressesDto);
             });
     }
 
@@ -249,14 +260,16 @@ public class UserControllerTest {
                 .build()
         );
 
-        ResponseEntity<UserAddressesResponseDto> response = userController.getUserAddressesByUserId(userId);
+        ResponseEntity<EntityModel<UserAddressesResponseDto>> response
+            = userController.getUserAddressesByUserId(userId);
 
         // validate response
         Assertions.assertNotNull(response);
         Assertions.assertEquals(200, response.getStatusCode().value());
 
         // validate addresses
-        UserAddressesResponseDto userAddressesResponse = response.getBody();
+        Assertions.assertNotNull(response.getBody());
+        UserAddressesResponseDto userAddressesResponse = response.getBody().getContent();
         Assertions.assertNotNull(userAddressesResponse);
         Assertions.assertEquals(userId, userAddressesResponse.getUserId());
         Assertions.assertNotNull(userAddressesResponse.getAddresses());
