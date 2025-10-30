@@ -1,14 +1,9 @@
 package kdodds.userservice.controllers.v1;
 
-import kdodds.userservice.assemblers.UserAddressModelAssembler;
-import kdodds.userservice.assemblers.UserAddressesModelAssembler;
 import kdodds.userservice.assemblers.UserModelAssembler;
 import kdodds.userservice.assemblers.UserProfileModelAssembler;
-import kdodds.userservice.dto.responses.UserAddressResponseDto;
-import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
-import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.services.UserService;
 import lombok.AllArgsConstructor;
@@ -34,10 +29,6 @@ public class UserController {
     private UserModelAssembler userModelAssembler;
 
     private UserProfileModelAssembler userProfileModelAssembler;
-
-    private UserAddressModelAssembler userAddressModelAssembler;
-
-    private UserAddressesModelAssembler userAddressesModelAssembler;
 
     /**
      * Gets all user data for a given user id.
@@ -81,52 +72,5 @@ public class UserController {
         );
     }
 
-    /**
-     * Get user addresses for a given user id.
-     *
-     * @param userId Unique user id of the user.
-     * @return UserAddressesResponse object.
-     */
-    @GetMapping("/{userId}/addresses")
-    public ResponseEntity<EntityModel<UserAddressesResponseDto>> getUserAddressesByUserId(@PathVariable String userId)
-        throws Exception {
-        if (userId == null || userId.isEmpty()) {
-            throw new InvalidUserIdException();
-        }
 
-        UserAddressesResponseDto addressesResponseDto = userService.getUserAddressesDtoByUserId(userId);
-
-        return new ResponseEntity<>(
-            userAddressesModelAssembler.toModel(addressesResponseDto),
-            HttpStatus.OK
-        );
-    }
-
-    /**
-     * Get a user address by address id.
-     *
-     * @param userId The user id to use for the test data.
-     * @param addressId The address id to use for the test data.
-     * @return UserAddressResponseDto
-     */
-    @GetMapping("/{userId}/addresses/{addressId}")
-    public ResponseEntity<EntityModel<UserAddressResponseDto>> getUserAddressById(
-        @PathVariable String userId,
-        @PathVariable String addressId
-    ) throws Exception {
-        if (userId == null || userId.isEmpty()) {
-            throw new InvalidUserIdException();
-        }
-
-        if (addressId == null || addressId.isEmpty()) {
-            throw new InvalidRequestDataException("Invalid null or empty address id");
-        }
-
-        UserAddressResponseDto response = userService.getUserAddressDtoById(userId, addressId);
-
-        return new ResponseEntity<>(
-            userAddressModelAssembler.toModel(response),
-            HttpStatus.OK
-        );
-    }
 }

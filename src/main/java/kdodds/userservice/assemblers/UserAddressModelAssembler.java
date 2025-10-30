@@ -1,5 +1,6 @@
 package kdodds.userservice.assemblers;
 
+import kdodds.userservice.controllers.v1.UserAddressController;
 import kdodds.userservice.controllers.v1.UserController;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public class UserAddressModelAssembler
     public EntityModel<UserAddressResponseDto> toModel(UserAddressResponseDto userAddressDto) {
         // add links
         try {
-            userAddressDto.add(linkTo(methodOn(UserController.class) // self)
+            userAddressDto.add(linkTo(methodOn(UserAddressController.class) // self)
                 .getUserAddressById(
                     userAddressDto.getUserId(),
                     userAddressDto.getAddressId()
@@ -34,7 +35,7 @@ public class UserAddressModelAssembler
                 .getUserByUserId(userAddressDto.getUserId())).withRel("user"));
             userAddressDto.add(linkTo(methodOn(UserController.class) // profile
                 .getUserProfileByUserId(userAddressDto.getUserId())).withRel("profile"));
-            userAddressDto.add(linkTo(methodOn(UserController.class) // addresses
+            userAddressDto.add(linkTo(methodOn(UserAddressController.class) // addresses
                 .getUserAddressesByUserId(userAddressDto.getUserId())).withRel("addresses"));
         } catch (Exception e) {
             log.error("Error creating links for UserAddressResponseDto: {}", e.getMessage());

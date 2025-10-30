@@ -1,5 +1,6 @@
 package kdodds.userservice.assemblers;
 
+import kdodds.userservice.controllers.v1.UserAddressController;
 import kdodds.userservice.controllers.v1.UserController;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,7 @@ public class UserAddressesModelAssembler
     public EntityModel<UserAddressesResponseDto> toModel(UserAddressesResponseDto userAddressesDto) {
         // add links to top level dto
         try {
-            userAddressesDto.add(linkTo(methodOn(UserController.class) // self)
+            userAddressesDto.add(linkTo(methodOn(UserAddressController.class) // self)
                 .getUserAddressesByUserId(userAddressesDto.getUserId())).withSelfRel());
             userAddressesDto.add(linkTo(methodOn(UserController.class) // user
                 .getUserByUserId(userAddressesDto.getUserId())).withRel("user"));
@@ -40,7 +41,7 @@ public class UserAddressesModelAssembler
         if (userAddressesDto.getAddresses() != null && !userAddressesDto.getAddresses().isEmpty()) {
             userAddressesDto.getAddresses().forEach(address -> {
                 try {
-                    address.add(linkTo(methodOn(UserController.class) // self
+                    address.add(linkTo(methodOn(UserAddressController.class) // self
                         .getUserAddressById(
                             userAddressesDto.getUserId(),
                             address.getAddressId()

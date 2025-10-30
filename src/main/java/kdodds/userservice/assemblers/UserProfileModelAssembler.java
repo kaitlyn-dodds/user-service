@@ -1,5 +1,6 @@
 package kdodds.userservice.assemblers;
 
+import kdodds.userservice.controllers.v1.UserAddressController;
 import kdodds.userservice.controllers.v1.UserController;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ public class UserProfileModelAssembler implements
                 .getUserProfileByUserId(userProfileDto.getUserId())).withSelfRel());
             userProfileDto.add(linkTo(methodOn(UserController.class) // user
                 .getUserByUserId(userProfileDto.getUserId())).withRel("user"));
-            userProfileDto.add(linkTo(methodOn(UserController.class) // addresses
+            userProfileDto.add(linkTo(methodOn(UserAddressController.class) // addresses
                 .getUserAddressesByUserId(userProfileDto.getUserId())).withRel("addresses"));
         } catch (Exception e) {
             log.error("Error creating links for UserProfileResponseDto: {}", e.getMessage());
