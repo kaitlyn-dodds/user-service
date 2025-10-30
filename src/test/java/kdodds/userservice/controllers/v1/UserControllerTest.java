@@ -1,5 +1,8 @@
 package kdodds.userservice.controllers.v1;
 
+import kdodds.userservice.assemblers.UserAddressModelAssembler;
+import kdodds.userservice.assemblers.UserModelAssembler;
+import kdodds.userservice.assemblers.UserProfileModelAssembler;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
@@ -15,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -23,6 +27,15 @@ import java.util.List;
 @ActiveProfiles("test")
 @SpringBootTest
 public class UserControllerTest {
+
+    @Mock
+    private UserModelAssembler mockUserModelAssembler;
+
+    @Mock
+    private UserProfileModelAssembler mockUserProfileModelAssembler;
+
+    @Mock
+    private UserAddressModelAssembler mockUserAddressModelAssembler;
 
     @Mock
     private UserService mockUserService;
@@ -37,6 +50,27 @@ public class UserControllerTest {
     public void setup() {
         // clear mocks
         Mockito.reset(mockUserService);
+
+        // mock the user model assembler to just return the input wrapped in an EntityModel
+        Mockito.when(mockUserModelAssembler.toModel(Mockito.any(UserResponseDto.class)))
+            .thenAnswer(invocation -> {
+                UserResponseDto argUserDto = invocation.getArgument(0);
+                return EntityModel.of(argUserDto);
+            });
+
+        // mock the user profile model assembler to just return the input wrapped in an EntityModel
+        Mockito.when(mockUserProfileModelAssembler.toModel(Mockito.any(UserProfileResponseDto.class)))
+            .thenAnswer(invocation -> {
+                UserProfileResponseDto argUserProfileDto = invocation.getArgument(0);
+                return EntityModel.of(argUserProfileDto);
+            });
+
+        // mock the user address model assembler to just return the input wrapped in an EntityModel
+        Mockito.when(mockUserAddressModelAssembler.toModel(Mockito.any(UserAddressResponseDto.class)))
+            .thenAnswer(invocation -> {
+                UserAddressResponseDto argUserAddressDto = invocation.getArgument(0);
+                return EntityModel.of(argUserAddressDto);
+            });
     }
 
     /**
@@ -55,14 +89,15 @@ public class UserControllerTest {
             return TestDataFactory.createTestUserResponseDto(argUserId);
         });
 
-        ResponseEntity<UserResponseDto> response = userController.getUserByUserId(userId);
+        ResponseEntity<EntityModel<UserResponseDto>> response = userController.getUserByUserId(userId);
 
         // validate response
         Assertions.assertNotNull(response);
         Assertions.assertEquals(200, response.getStatusCode().value());
 
         // validate user and user profile
-        UserResponseDto userResponse = response.getBody();
+        Assertions.assertNotNull(response.getBody());
+        UserResponseDto userResponse = response.getBody().getContent();
         Assertions.assertNotNull(userResponse);
         Assertions.assertEquals(userId, userResponse.getUserId());
         Assertions.assertEquals(TestDataFactory.TEST_USER_USERNAME, userResponse.getUsername());
@@ -143,14 +178,15 @@ public class UserControllerTest {
             TestDataFactory.createTestUserProfileDto(userId)
         );
 
-        ResponseEntity<UserProfileResponseDto> response = userController.getUserProfileByUserId(userId);
+        ResponseEntity<EntityModel<UserProfileResponseDto>> response = userController.getUserProfileByUserId(userId);
 
         // validate response
         Assertions.assertNotNull(response);
         Assertions.assertEquals(200, response.getStatusCode().value());
 
         // validate user profile
-        UserProfileResponseDto userProfileResponse = response.getBody();
+        Assertions.assertNotNull(response.getBody());
+        UserProfileResponseDto userProfileResponse = response.getBody().getContent();
         Assertions.assertNotNull(userProfileResponse);
         Assertions.assertEquals(userId, userProfileResponse.getUserId());
         Assertions.assertEquals(TestDataFactory.TEST_USER_FIRST_NAME, userProfileResponse.getFirstName());
@@ -300,14 +336,16 @@ public class UserControllerTest {
             TestDataFactory.createTestUserAddressDto(userId)
         );
 
-        ResponseEntity<UserAddressResponseDto> response = userController.getUserAddressById(userId, addressId);
+        ResponseEntity<EntityModel<UserAddressResponseDto>>
+            response = userController.getUserAddressById(userId, addressId);
 
         // validate response
         Assertions.assertNotNull(response);
         Assertions.assertEquals(200, response.getStatusCode().value());
 
         // validate address
-        UserAddressResponseDto userAddressResponse = response.getBody();
+        Assertions.assertNotNull(response.getBody());
+        UserAddressResponseDto userAddressResponse = response.getBody().getContent();
         Assertions.assertNotNull(userAddressResponse);
         Assertions.assertEquals(userId, userAddressResponse.getUserId());
         Assertions.assertEquals(TestDataFactory.TEST_USER_ADDRESS_LINE_1, userAddressResponse.getAddressLine1());

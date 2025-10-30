@@ -7,6 +7,7 @@ import kdodds.userservice.entities.UserProfile;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.Instant;
 
@@ -14,7 +15,7 @@ import java.time.Instant;
 @Data
 @Builder
 @Jacksonized
-public class UserProfileResponseDto {
+public class UserProfileResponseDto extends RepresentationModel<UserProfileResponseDto> {
 
     @JsonProperty("user_id")
     private String userId;

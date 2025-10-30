@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ import java.util.List;
 @Data
 @Builder
 @Slf4j
-public class UserResponseDto {
+public class UserResponseDto extends RepresentationModel<UserResponseDto> {
 
     @JsonProperty("user_id")
     private String userId;
