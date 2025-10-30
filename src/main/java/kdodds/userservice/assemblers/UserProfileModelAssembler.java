@@ -2,6 +2,7 @@ package kdodds.userservice.assemblers;
 
 import kdodds.userservice.controllers.v1.UserAddressController;
 import kdodds.userservice.controllers.v1.UserController;
+import kdodds.userservice.controllers.v1.UserProfileController;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.EntityModel;
@@ -26,7 +27,7 @@ public class UserProfileModelAssembler implements
     public EntityModel<UserProfileResponseDto> toModel(UserProfileResponseDto userProfileDto) {
 
         try {
-            userProfileDto.add(linkTo(methodOn(UserController.class) // self
+            userProfileDto.add(linkTo(methodOn(UserProfileController.class) // self
                 .getUserProfileByUserId(userProfileDto.getUserId())).withSelfRel());
             userProfileDto.add(linkTo(methodOn(UserController.class) // user
                 .getUserByUserId(userProfileDto.getUserId())).withRel("user"));

@@ -2,6 +2,7 @@ package kdodds.userservice.assemblers;
 
 import kdodds.userservice.controllers.v1.UserAddressController;
 import kdodds.userservice.controllers.v1.UserController;
+import kdodds.userservice.controllers.v1.UserProfileController;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.EntityModel;
@@ -30,7 +31,7 @@ public class UserAddressesModelAssembler
                 .getUserAddressesByUserId(userAddressesDto.getUserId())).withSelfRel());
             userAddressesDto.add(linkTo(methodOn(UserController.class) // user
                 .getUserByUserId(userAddressesDto.getUserId())).withRel("user"));
-            userAddressesDto.add(linkTo(methodOn(UserController.class) // profile
+            userAddressesDto.add(linkTo(methodOn(UserProfileController.class) // profile
                 .getUserProfileByUserId(userAddressesDto.getUserId())).withRel("profile"));
         } catch (Exception ex) {
             log.error("Error creating links for UserAddressesResponseDto: {}", ex.getMessage());
