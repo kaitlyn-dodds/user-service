@@ -1,5 +1,7 @@
 package kdodds.userservice.services;
 
+import kdodds.userservice.dto.responses.PageDto;
+import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
@@ -17,6 +19,9 @@ import kdodds.userservice.repositories.UserProfileRepository;
 import kdodds.userservice.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +38,43 @@ public class UserService {
     private UserProfileRepository userProfileRepository;
 
     private UserAddressRepository userAddressRepository;
+
+    /**
+     * Gets all users, paginated.
+     */
+    public PagedUsersResponseDto getAllUsersPaginated(int page, int size) {
+        // create Pageable objects from provided page and size
+        Pageable pageable = PageRequest.of(page, size);
+
+        // get all users from the repository
+        Page<User> userPage;
+        try {
+            userPage = userRepository.findAll(pageable);
+        } catch (Exception ex) {
+            log.error("Error getting all users paged: {}", ex.getMessage());
+            throw new RuntimeException(ex);
+        }
+
+        // convert users in page to dtos
+        List<UserResponseDto> userDtos = userPage
+            .getContent()
+            .stream()
+            .map(UserResponseDto::fromEntity)
+            .toList();
+
+        // build paged dto
+        PageDto pageDto = PageDto.builder()
+            .page(userPage.getNumber())
+            .size(userPage.getSize())
+            .totalPages(userPage.getTotalPages())
+            .totalElements(userPage.getTotalElements())
+            .build();
+
+        return PagedUsersResponseDto.builder()
+            .users(userDtos)
+            .page(pageDto)
+            .build();
+    }
 
     /**
      * Gets all user data for a given user id.

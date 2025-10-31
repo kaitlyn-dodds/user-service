@@ -35,18 +35,18 @@ public class UserAddressesModelAssemblerTest {
         UserAddressesResponseDto modelDto = model.getContent();
         Assertions.assertNotNull(modelDto);
 
-        // verify that the expected links are present (self, user, profile)
+        // verify that the expected links are present (self, user)
         Assertions.assertNotNull(model.getLinks());
-        Assertions.assertTrue(modelDto.getLinks().hasSize(3));
+        Assertions.assertTrue(modelDto.getLinks().hasSize(2));
         modelDto.getLink("self").orElseThrow(() -> new AssertionError("Missing self link"));
         modelDto.getLink("user").orElseThrow(() -> new AssertionError("Missing user link"));
-        modelDto.getLink("profile").orElseThrow(() -> new AssertionError("Missing profile link"));
 
-        // verify that each address has a self link
+        // verify that each address has a self, user
         modelDto.getAddresses().forEach(addressDto -> {
             Assertions.assertNotNull(addressDto.getLinks());
-            Assertions.assertTrue(addressDto.getLinks().hasSize(1));
+            Assertions.assertTrue(addressDto.getLinks().hasSize(2));
             addressDto.getLink("self").orElseThrow(() -> new AssertionError("Missing self link"));
+            addressDto.getLink("user").orElseThrow(() -> new AssertionError("Missing user link"));
         });
     }
 

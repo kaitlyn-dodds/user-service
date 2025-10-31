@@ -2,7 +2,7 @@ package kdodds.userservice.assemblers;
 
 import kdodds.userservice.controllers.v1.UserAddressController;
 import kdodds.userservice.controllers.v1.UserController;
-import kdodds.userservice.controllers.v1.UserProfileController;
+import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.EntityModel;
@@ -31,8 +31,6 @@ public class UserAddressesModelAssembler
                 .getUserAddressesByUserId(userAddressesDto.getUserId())).withSelfRel());
             userAddressesDto.add(linkTo(methodOn(UserController.class) // user
                 .getUserByUserId(userAddressesDto.getUserId())).withRel("user"));
-            userAddressesDto.add(linkTo(methodOn(UserProfileController.class) // profile
-                .getUserProfileByUserId(userAddressesDto.getUserId())).withRel("profile"));
         } catch (Exception ex) {
             log.error("Error creating links for UserAddressesResponseDto: {}", ex.getMessage());
             throw new RuntimeException(ex);
@@ -40,21 +38,26 @@ public class UserAddressesModelAssembler
 
         // add links for each address in the list
         if (userAddressesDto.getAddresses() != null && !userAddressesDto.getAddresses().isEmpty()) {
-            userAddressesDto.getAddresses().forEach(address -> {
-                try {
-                    address.add(linkTo(methodOn(UserAddressController.class) // self
-                        .getUserAddressById(
-                            userAddressesDto.getUserId(),
-                            address.getAddressId()
-                        )).withSelfRel());
-                } catch (Exception e) {
-                    log.error("Error creating links for UserAddressResponseDto: {}", e.getMessage());
-                    throw new RuntimeException(e);
-                }
-            });
+            userAddressesDto.getAddresses().forEach(UserAddressesModelAssembler::assembleLinks);
         }
 
         return EntityModel.of(userAddressesDto);
+    }
+
+    private static void assembleLinks(UserAddressResponseDto userAddressDto) {
+        // add self and parent user links
+        try {
+            userAddressDto.add(linkTo(methodOn(UserAddressController.class) // self)
+                .getUserAddressById(
+                    userAddressDto.getUserId(),
+                    userAddressDto.getAddressId()
+                )).withSelfRel());
+            userAddressDto.add(linkTo(methodOn(UserController.class) // user
+                .getUserByUserId(userAddressDto.getUserId())).withRel("user"));
+        } catch (Exception ex) {
+            log.error("Error creating links for UserAddressResponseDto: {}", ex.getMessage());
+            throw new RuntimeException(ex);
+        }
     }
 
 }

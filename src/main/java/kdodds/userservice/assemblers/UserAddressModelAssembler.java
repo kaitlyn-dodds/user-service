@@ -2,7 +2,6 @@ package kdodds.userservice.assemblers;
 
 import kdodds.userservice.controllers.v1.UserAddressController;
 import kdodds.userservice.controllers.v1.UserController;
-import kdodds.userservice.controllers.v1.UserProfileController;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.hateoas.EntityModel;
@@ -25,7 +24,13 @@ public class UserAddressModelAssembler
      */
     @Override
     public EntityModel<UserAddressResponseDto> toModel(UserAddressResponseDto userAddressDto) {
-        // add links
+        // add links to top level dto
+        assembleLinks(userAddressDto);
+
+        return EntityModel.of(userAddressDto);
+    }
+
+    private static void assembleLinks(UserAddressResponseDto userAddressDto) {
         try {
             userAddressDto.add(linkTo(methodOn(UserAddressController.class) // self)
                 .getUserAddressById(
@@ -34,16 +39,12 @@ public class UserAddressModelAssembler
                 )).withSelfRel());
             userAddressDto.add(linkTo(methodOn(UserController.class) // user
                 .getUserByUserId(userAddressDto.getUserId())).withRel("user"));
-            userAddressDto.add(linkTo(methodOn(UserProfileController.class) // profile
-                .getUserProfileByUserId(userAddressDto.getUserId())).withRel("profile"));
             userAddressDto.add(linkTo(methodOn(UserAddressController.class) // addresses
-                .getUserAddressesByUserId(userAddressDto.getUserId())).withRel("addresses"));
+                .getUserAddressesByUserId(userAddressDto.getUserId())).withRel("collection"));
         } catch (Exception e) {
             log.error("Error creating links for UserAddressResponseDto: {}", e.getMessage());
             throw new RuntimeException(e);
         }
-
-        return EntityModel.of(userAddressDto);
     }
 
 }
