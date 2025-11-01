@@ -1,5 +1,7 @@
 package kdodds.userservice.utils;
 
+import kdodds.userservice.dto.responses.PageDto;
+import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
@@ -221,6 +223,31 @@ public class TestDataFactory {
         return UserAddressesResponseDto.builder()
             .userId(userId)
             .addresses(List.of(TestDataFactory.createTestUserAddressDto(userId)))
+            .build();
+    }
+
+    /**
+     * Create test PageDto.
+     */
+    public static PageDto createTestPageDto(int page, int size, int totalPages, int totalElements) {
+        return PageDto.builder()
+            .page(page)
+            .size(size)
+            .totalPages(totalPages)
+            .totalElements(totalElements)
+            .build();
+    }
+
+    /**
+     * Create test PagedUsersResponseDto.
+     */
+    public static PagedUsersResponseDto createTestPagedUsersResponseDto(
+        List<UserResponseDto> users,
+        PageDto page
+    ) {
+        return PagedUsersResponseDto.builder()
+            .users(users)
+            .page(page)
             .build();
     }
 
