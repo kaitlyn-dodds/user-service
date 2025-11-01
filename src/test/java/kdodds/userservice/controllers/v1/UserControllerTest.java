@@ -1,6 +1,8 @@
 package kdodds.userservice.controllers.v1;
 
+import kdodds.userservice.assemblers.PagedUsersModelAssembler;
 import kdodds.userservice.assemblers.UserModelAssembler;
+import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.services.UserService;
@@ -16,6 +18,8 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+
 @ActiveProfiles("test")
 @SpringBootTest
 public class UserControllerTest {
@@ -25,6 +29,9 @@ public class UserControllerTest {
 
     @Mock
     private UserService mockUserService;
+
+    @Mock
+    private PagedUsersModelAssembler mockPagedUsersModelAssembler;
 
     @InjectMocks
     private UserController userController;
@@ -46,6 +53,65 @@ public class UserControllerTest {
                 UserResponseDto argUserDto = invocation.getArgument(0);
                 return EntityModel.of(argUserDto);
             });
+
+        // mock the paged users model assembler to return the input wrapped in an EntityModel
+        Mockito.when(mockPagedUsersModelAssembler.toModel(Mockito.any(PagedUsersResponseDto.class)))
+            .thenAnswer(invocation -> {
+                PagedUsersResponseDto argPagedUsersDto = invocation.getArgument(0);
+                return EntityModel.of(argPagedUsersDto);
+            });
+    }
+
+    /**
+     * Test the UserController /users endpoint returns a 200 and a list of users.
+     */
+    @Test
+    public void testGetUsers_ReturnsPagedUsersResponse() throws Exception {
+        int page = 0;
+        int size = 10;
+        int totalPages = 1;
+        int totalElements = 1;
+
+        // mock the service call
+        Mockito.when(mockUserService.getAllUsersPaginated(page, size)).thenReturn(
+            TestDataFactory.createTestPagedUsersResponseDto(
+                List.of(TestDataFactory.createTestUserResponseDto(TestDataFactory.TEST_USER_ID)),
+                TestDataFactory.createTestPageDto(page, size, totalPages, totalElements)
+            )
+        );
+
+        ResponseEntity<EntityModel<PagedUsersResponseDto>> response = userController.getAllUsersPaginated(page, size);
+
+        // validate response
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(200, response.getStatusCode().value());
+
+        // validate paged users response
+        Assertions.assertNotNull(response.getBody());
+        PagedUsersResponseDto pagedUsersResponse = response.getBody().getContent();
+        Assertions.assertNotNull(pagedUsersResponse);
+        Assertions.assertEquals(page, pagedUsersResponse.getPage().getPage());
+        Assertions.assertEquals(size, pagedUsersResponse.getPage().getSize());
+        Assertions.assertEquals(totalElements, pagedUsersResponse.getPage().getTotalElements());
+        Assertions.assertEquals(totalPages, pagedUsersResponse.getPage().getTotalPages());
+
+        // validate users in paged users response
+        Assertions.assertNotNull(pagedUsersResponse.getUsers());
+        Assertions.assertEquals(1, pagedUsersResponse.getUsers().size());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_ID, pagedUsersResponse.getUsers().getFirst().getUserId());
+        Assertions.assertEquals(
+            TestDataFactory.TEST_USER_USERNAME, pagedUsersResponse.getUsers().getFirst().getUsername());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_EMAIL, pagedUsersResponse.getUsers().getFirst().getEmail());
+        Assertions.assertEquals(
+            TestDataFactory.TEST_USER_FIRST_NAME, pagedUsersResponse.getUsers().getFirst().getFirstName());
+        Assertions.assertEquals(
+            TestDataFactory.TEST_USER_LAST_NAME, pagedUsersResponse.getUsers().getFirst().getLastName());
+        Assertions.assertEquals(
+            TestDataFactory.TEST_USER_PHONE_NUMBER, pagedUsersResponse.getUsers().getFirst().getPhoneNumber());
+        Assertions.assertEquals(
+            TestDataFactory.TEST_USER_PROFILE_IMAGE_URL, pagedUsersResponse.getUsers().getFirst().getProfileImageUrl());
+        Assertions.assertNotNull(pagedUsersResponse.getUsers().getFirst().getCreatedAt());
+        Assertions.assertNotNull(pagedUsersResponse.getUsers().getFirst().getUpdatedAt());
     }
 
     /**
