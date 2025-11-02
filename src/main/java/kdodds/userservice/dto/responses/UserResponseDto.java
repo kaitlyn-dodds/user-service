@@ -63,6 +63,14 @@ public class UserResponseDto extends RepresentationModel<UserResponseDto> {
             return null;
         }
 
+        UserResponseDto response = UserResponseDto.builder()
+            .userId(user.getId().toString())
+            .username(user.getUsername())
+            .email(user.getEmail())
+            .createdAt(user.getCreatedAt())
+            .updatedAt(user.getUpdatedAt())
+            .build();
+
         // convert addresses
         List<UserAddressResponseDto> addresses = new ArrayList<>();
         log.debug("User has {} addresses in database", user.getAddresses().size());
@@ -72,19 +80,17 @@ public class UserResponseDto extends RepresentationModel<UserResponseDto> {
                 .map(UserAddressResponseDto::fromEntity)
                 .toList();
         }
+        response.setAddresses(addresses);
 
-        return UserResponseDto.builder()
-            .userId(user.getId().toString())
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .firstName(user.getUserProfile().getFirstName())
-            .lastName(user.getUserProfile().getLastName())
-            .phoneNumber(user.getUserProfile().getPhoneNumber())
-            .profileImageUrl(user.getUserProfile().getProfileImageUrl())
-            .addresses(addresses)
-            .createdAt(user.getCreatedAt())
-            .updatedAt(user.getUpdatedAt())
-            .build();
+        // set profile data if applicable
+        if (user.getUserProfile() != null) {
+            response.setFirstName(user.getUserProfile().getFirstName());
+            response.setLastName(user.getUserProfile().getLastName());
+            response.setPhoneNumber(user.getUserProfile().getPhoneNumber());
+            response.setProfileImageUrl(user.getUserProfile().getProfileImageUrl());
+        }
+
+        return response;
     }
 
 }

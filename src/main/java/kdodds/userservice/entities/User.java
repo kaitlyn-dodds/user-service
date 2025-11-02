@@ -7,8 +7,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -46,12 +44,22 @@ public class User {
     @Column(nullable = false)
     private Instant updatedAt;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "id")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserProfile userProfile;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = {CascadeType.ALL})
     private List<UserAddress> addresses = new ArrayList<>();
 
+
+    /**
+     * Set the user profile for this user.
+     *
+     * @param userProfile The UserProfile object to set.
+     */
+    public void setUserProfile(UserProfile userProfile) {
+        this.userProfile = userProfile;
+        if (userProfile != null) {
+            userProfile.setUser(this);
+        }
+    }
 }

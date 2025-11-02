@@ -13,6 +13,9 @@ public class CreateUserRequestDto {
     @JsonProperty(value = "username", required = true)
     private String username;
 
+    @JsonProperty(value = "password", required = true)
+    private String password;
+
     @JsonProperty(value = "email", required = true)
     private String email;
 
@@ -28,7 +31,7 @@ public class CreateUserRequestDto {
     @JsonProperty("profile_image_url")
     private String profileImageUrl;
 
-    @JsonProperty(value = "address", required = true)
+    @JsonProperty(value = "address")
     private UserAddressRequestDto address;
 
 }

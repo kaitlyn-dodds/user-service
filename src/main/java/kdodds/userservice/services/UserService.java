@@ -1,5 +1,6 @@
 package kdodds.userservice.services;
 
+import kdodds.userservice.dto.requests.CreateUserRequestDto;
 import kdodds.userservice.dto.responses.PageDto;
 import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
@@ -9,6 +10,7 @@ import kdodds.userservice.dto.responses.UserResponseDto;
 import kdodds.userservice.entities.User;
 import kdodds.userservice.entities.UserAddress;
 import kdodds.userservice.entities.UserProfile;
+import kdodds.userservice.exceptions.models.exceptions.UserConflictException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
@@ -19,11 +21,13 @@ import kdodds.userservice.repositories.UserProfileRepository;
 import kdodds.userservice.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -203,6 +207,79 @@ public class UserService {
         }
 
         return UserAddressResponseDto.fromEntity(address.get());
+    }
+
+    /**
+     * Creates a new user. Returns the newly created user as a UserResponseDto.
+     */
+    public UserResponseDto createUser(CreateUserRequestDto request) throws Exception {
+        if (request == null) {
+            throw new InvalidRequestDataException("Request dto must be included");
+        }
+
+        // create new user entity
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPasswordHash(request.getPassword()); // TODO: hash this..
+        user.setStatus("active");  // TODO: default to active, need to make this an enum
+        user.setCreatedAt(Instant.now());
+        user.setUpdatedAt(Instant.now());
+
+        // save the user
+        try {
+            user = userRepository.saveAndFlush(user);
+        } catch (DataIntegrityViolationException ex) {
+            String exceptionMessage = String.format(
+                "Unknown error creating user with username: %s, email %s",
+                user.getUsername(),
+                user.getEmail()
+            );
+            log.error("Data integrity violation exception: {} - {}", ex.getCause(), ex.getMessage());
+
+            // check if due to uniqueness violation
+            if (ex.getCause() instanceof  org.hibernate.exception.ConstraintViolationException cve) {
+                if (cve.getMessage().contains("users_username_key")) {
+                    exceptionMessage = String.format("User with username %s already exists", user.getUsername());
+                    throw new UserConflictException(exceptionMessage);
+                }
+                if (cve.getMessage().contains("email")) {
+                    exceptionMessage = String.format("User with email %s already exists", user.getEmail());
+                }
+                throw new UserConflictException(exceptionMessage);
+            }
+
+            log.error(exceptionMessage);
+            throw new Exception(exceptionMessage, ex);
+        } catch (Exception ex) {
+            log.error("Error creating new user: {} - {}", ex.getClass(), ex.getMessage());
+            throw new Exception("Error creating new user", ex);
+        }
+
+        // create the profile
+        UserProfile profile = new UserProfile();
+        profile.setUser(user);
+        profile.setFirstName(request.getFirstName());
+        profile.setLastName(request.getLastName());
+        profile.setPhoneNumber(request.getPhoneNumber());
+        profile.setProfileImageUrl(request.getProfileImageUrl());
+        profile.setCreatedAt(Instant.now());
+        profile.setUpdatedAt(Instant.now());
+
+        // save the profile
+        try {
+            profile = userProfileRepository.save(profile);
+        } catch (Exception ex) {
+            log.error("Error creating new user profile: {} - {}", ex.getClass(), ex.getMessage());
+            throw new Exception("Error creating new user profile", ex);
+        }
+
+        // set profile on user
+        user.setUserProfile(profile);
+
+        // TODO: create user address (if applicable)
+
+        return UserResponseDto.fromEntity(user);
     }
 
 }

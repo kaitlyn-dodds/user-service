@@ -4,6 +4,7 @@ import kdodds.userservice.exceptions.models.ErrorResponse;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
+import kdodds.userservice.exceptions.models.exceptions.UserConflictException;
 import kdodds.userservice.exceptions.models.exceptions.UserNotFoundException;
 import kdodds.userservice.exceptions.models.exceptions.UserProfileNotFound;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,23 @@ public class UserExceptionHandler {
             .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
+     * Handle conflicting data exceptions, thrown when some provided user data conflicts with existing data.
+     *
+     * @param ex The RuntimeException object.
+     * @return An ErrorResponse wrapped in a ResponseEntity.
+     */
+    @ExceptionHandler(UserConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflictingDataException(RuntimeException ex) {
+        ErrorResponse response = ErrorResponse.builder()
+            .error(HttpStatus.CONFLICT.getReasonPhrase())
+            .message(ex.getMessage())
+            .status(HttpStatus.CONFLICT.value())
+            .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     /**
