@@ -62,4 +62,16 @@ public class User {
             userProfile.setUser(this);
         }
     }
+
+    /**
+     * Add an address to this user.
+     *
+     * @param address The UserAddress object to add.
+     */
+    public void addAddress(UserAddress address) {
+        addresses.add(address);
+        if (address != null) {
+            address.setUser(this);
+        }
+    }
 }
