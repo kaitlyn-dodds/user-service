@@ -215,15 +215,14 @@ public class UserService {
      * @return UserResponseDto
      * @throws Exception Throws an exception if the request is invalid or attempt to create user fails.
      */
-    public UserResponseDto createUserV2(CreateUserRequestDto request) throws Exception {
+    public UserResponseDto createUserAndProfileAndAddress(CreateUserRequestDto request) throws Exception {
         if (request == null) {
             log.warn("Cannot create user from null request");
             throw new InvalidRequestDataException("Cannot create user from null or empty request");
         }
 
-        // TODO: if no address, direct request to simpler query
         if (request.getAddress() == null) {
-            // TODO: call userRepository.createUserAndProfile(request)
+            return createUserAndProfile(request);
         }
 
         try {
@@ -235,41 +234,84 @@ public class UserService {
                 request.getLastName(),
                 request.getPhoneNumber(),
                 request.getProfileImageUrl(),
-                request.getAddress() != null ? request.getAddress().getAddressType() : null,
-                request.getAddress() != null ? request.getAddress().getAddressLine1() : null,
-                request.getAddress() != null ? request.getAddress().getAddressLine2() : null,
-                request.getAddress() != null ? request.getAddress().getCity() : null,
-                request.getAddress() != null ? request.getAddress().getState() : null,
-                request.getAddress() != null ? request.getAddress().getZipCode() : null,
-                request.getAddress() != null ? request.getAddress().getCountry() : null
+                request.getAddress().getAddressType(),
+                request.getAddress().getAddressLine1(),
+                request.getAddress().getAddressLine2(),
+                request.getAddress().getCity(),
+                request.getAddress().getState(),
+                request.getAddress().getZipCode(),
+                request.getAddress().getCountry()
             );
 
             return UserResponseDto.fromEntity(userRepository.findById(userId).get());
         } catch (DataIntegrityViolationException ex) {
-            String exceptionMessage = String.format(
-                "Unknown error creating user with username: %s, email %s",
-                request.getUsername(),
-                request.getEmail()
-            );
-
-            // check if due to uniqueness violation
-            if (ex.getCause() instanceof  org.hibernate.exception.ConstraintViolationException cve) {
-                if (cve.getMessage().contains("users_username_key")) {
-                    exceptionMessage = String.format("User with username %s already exists", request.getUsername());
-                    throw new UserConflictException(exceptionMessage);
-                }
-                if (cve.getMessage().contains("email")) {
-                    exceptionMessage = String.format("User with email %s already exists", request.getEmail());
-                }
-                throw new UserConflictException(exceptionMessage);
-            }
-
-            log.error(exceptionMessage);
-            throw new Exception(exceptionMessage, ex);
+            String msg = handleDataIntegrityViolationException(ex, request);
+            log.error(msg);
+            throw new Exception(msg, ex);
         } catch (Exception ex) {
-            log.error("Error creating new user: {} - {}", ex.getClass(), ex.getMessage());
+            log.error("Error creating new user: {} - {}", request.getUsername(), ex.getMessage());
             throw new Exception("Error creating new user", ex);
         }
+    }
+
+    /**
+     * Creates a new user and profile. Returns the newly created user as a UserResponseDto.
+     *
+     * @param request The CreateUserRequestDto to use for the data.
+     * @return UserResponseDto
+     * @throws Exception Throws an exception if the request is invalid or attempt to create user fails.
+     */
+    public UserResponseDto createUserAndProfile(CreateUserRequestDto request) throws Exception {
+        if (request == null) {
+            log.warn("Cannot create user from null request");
+            throw new InvalidRequestDataException("Cannot create user from null or empty request");
+        }
+
+        try {
+            UUID userId = userRepository.createUserAndProfile(
+                request.getUsername(),
+                request.getEmail(),
+                request.getPassword(),
+                request.getFirstName(),
+                request.getLastName(),
+                request.getPhoneNumber(),
+                request.getProfileImageUrl()
+            );
+
+            return UserResponseDto.fromEntity(userRepository.findById(userId).get());
+        } catch (DataIntegrityViolationException ex) {
+            String msg = handleDataIntegrityViolationException(ex, request);
+            log.error(msg);
+            throw new Exception(msg, ex);
+        } catch (Exception ex) {
+            log.error("Error creating new user: {} - {}", request.getUsername(), ex.getMessage());
+            throw new Exception("Error creating new user", ex);
+        }
+    }
+
+    private String handleDataIntegrityViolationException(
+        DataIntegrityViolationException ex,
+        CreateUserRequestDto request
+    ) {
+        String exceptionMessage = String.format(
+            "Unknown error creating user with username: %s, email %s",
+            request.getUsername(),
+            request.getEmail()
+        );
+
+        // check if due to uniqueness violation
+        if (ex.getCause() instanceof  org.hibernate.exception.ConstraintViolationException cve) {
+            if (cve.getMessage().contains("users_username_key")) {
+                exceptionMessage = String.format("User with username %s already exists", request.getUsername());
+                throw new UserConflictException(exceptionMessage);
+            }
+            if (cve.getMessage().contains("email")) {
+                exceptionMessage = String.format("User with email %s already exists", request.getEmail());
+            }
+            throw new UserConflictException(exceptionMessage);
+        }
+
+        return exceptionMessage;
     }
 
 }

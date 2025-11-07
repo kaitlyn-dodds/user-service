@@ -66,5 +66,39 @@ public interface UserRepository extends JpaRepository<User, UUID> {
         @Param("country") String country
     );
 
+    /**
+     * Create a new user and profile.
+     *
+     * @param username The username to use for the user.
+     * @param email The email to use for the user.
+     * @param passwordHash The password hash to use for the user.
+     * @param firstName The first name to use for the user profile.
+     * @param lastName The last name to use for the user profile.
+     * @param phoneNumber The phone number to use for the user profile.
+     * @param profileImageUrl The profile image url to use for the user profile.
+     * @return The user id of the newly created user.
+     */
+    @Transactional
+    @Query(value = """
+        WITH created_user AS (
+            INSERT INTO users (username, email, password_hash, status, created_at, updated_at)
+            VALUES (:username, :email, :passwordHash, 'ACTIVE', NOW(), NOW())
+            RETURNING id
+        )
+        INSERT INTO user_profiles (user_id, first_name, last_name, phone_number, profile_image_url, created_at, updated_at)
+        SELECT id, :firstName, :lastName, :phoneNumber, :profileImageUrl, NOW(), NOW()
+        FROM created_user
+        RETURNING user_id;
+        """, nativeQuery = true)
+    UUID createUserAndProfile(
+        @Param("username") String username,
+        @Param("email") String email,
+        @Param("passwordHash") String passwordHash,
+        @Param("firstName") String firstName,
+        @Param("lastName") String lastName,
+        @Param("phoneNumber") String phoneNumber,
+        @Param("profileImageUrl") String profileImageUrl
+    );
+
 
 }
