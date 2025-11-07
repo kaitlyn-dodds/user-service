@@ -87,7 +87,7 @@ public class UserController {
         validateCreateUserRequest(request);
 
         // attempt to create user
-        UserResponseDto user = userService.createUser(request);
+        UserResponseDto user = userService.createUserV2(request);
 
         return new ResponseEntity<>(
             userModelAssembler.toModel(user),

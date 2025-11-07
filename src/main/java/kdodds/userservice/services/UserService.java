@@ -1,7 +1,6 @@
 package kdodds.userservice.services;
 
 import kdodds.userservice.dto.requests.CreateUserRequestDto;
-import kdodds.userservice.dto.requests.UserAddressRequestDto;
 import kdodds.userservice.dto.responses.PageDto;
 import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
@@ -11,10 +10,10 @@ import kdodds.userservice.dto.responses.UserResponseDto;
 import kdodds.userservice.entities.User;
 import kdodds.userservice.entities.UserAddress;
 import kdodds.userservice.entities.UserProfile;
-import kdodds.userservice.exceptions.models.exceptions.UserConflictException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
+import kdodds.userservice.exceptions.models.exceptions.UserConflictException;
 import kdodds.userservice.exceptions.models.exceptions.UserNotFoundException;
 import kdodds.userservice.exceptions.models.exceptions.UserProfileNotFound;
 import kdodds.userservice.repositories.UserAddressRepository;
@@ -28,7 +27,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -212,54 +210,56 @@ public class UserService {
 
     /**
      * Creates a new user. Returns the newly created user as a UserResponseDto.
+     *
+     * @param request The CreateUserRequestDto to use for the data.
+     * @return UserResponseDto
+     * @throws Exception Throws an exception if the request is invalid or attempt to create user fails.
      */
-    public UserResponseDto createUser(CreateUserRequestDto request) throws Exception {
-        // attempt to create and save the user (need to generate the id)
-        Optional<User> user = createAndSaveUserFromCreateRequest(request);
-
-        // throw and exit if no user was created
-        if (user.isEmpty()) {
-            log.warn("Cannot create user from create user request");
-            throw new InvalidRequestDataException("Cannot create user from request data");
-        }
-
-        createAndSaveUserProfileFromCreateRequest(request, user.get());
-
-        // create the user address
-        if (request.getAddress() != null) {
-            createAndSaveUserAddressFromRequest(request.getAddress(), user.get());
-        }
-
-        return UserResponseDto.fromEntity(user.get());
-    }
-
-    private Optional<User> createAndSaveUserFromCreateRequest(CreateUserRequestDto request) throws Exception {
+    public UserResponseDto createUserV2(CreateUserRequestDto request) throws Exception {
         if (request == null) {
             log.warn("Cannot create user from null request");
             throw new InvalidRequestDataException("Cannot create user from null or empty request");
         }
 
-        // create new user entity
-        User user = composeUserEntityFromRequest(request);
+        // TODO: if no address, direct request to simpler query
+        if (request.getAddress() == null) {
+            // TODO: call userRepository.createUserAndProfile(request)
+        }
 
-        // save the user (get back the id right away)
         try {
-            user = userRepository.saveAndFlush(user);
+            UUID userId = userRepository.createUserAndProfileAndAddress(
+                request.getUsername(),
+                request.getEmail(),
+                request.getPassword(),
+                request.getFirstName(),
+                request.getLastName(),
+                request.getPhoneNumber(),
+                request.getProfileImageUrl(),
+                request.getAddress() != null ? request.getAddress().getAddressType() : null,
+                request.getAddress() != null ? request.getAddress().getAddressLine1() : null,
+                request.getAddress() != null ? request.getAddress().getAddressLine2() : null,
+                request.getAddress() != null ? request.getAddress().getCity() : null,
+                request.getAddress() != null ? request.getAddress().getState() : null,
+                request.getAddress() != null ? request.getAddress().getZipCode() : null,
+                request.getAddress() != null ? request.getAddress().getCountry() : null
+            );
+
+            return UserResponseDto.fromEntity(userRepository.findById(userId).get());
         } catch (DataIntegrityViolationException ex) {
             String exceptionMessage = String.format(
                 "Unknown error creating user with username: %s, email %s",
-                user.getUsername(),
-                user.getEmail()
+                request.getUsername(),
+                request.getEmail()
             );
 
             // check if due to uniqueness violation
             if (ex.getCause() instanceof  org.hibernate.exception.ConstraintViolationException cve) {
                 if (cve.getMessage().contains("users_username_key")) {
-                    exceptionMessage = String.format("User with username %s already exists", user.getUsername());
+                    exceptionMessage = String.format("User with username %s already exists", request.getUsername());
                     throw new UserConflictException(exceptionMessage);
                 }
                 if (cve.getMessage().contains("email")) {
-                    exceptionMessage = String.format("User with email %s already exists", user.getEmail());
+                    exceptionMessage = String.format("User with email %s already exists", request.getEmail());
                 }
                 throw new UserConflictException(exceptionMessage);
             }
@@ -270,92 +270,6 @@ public class UserService {
             log.error("Error creating new user: {} - {}", ex.getClass(), ex.getMessage());
             throw new Exception("Error creating new user", ex);
         }
-
-        return Optional.of(user);
-    }
-
-    private Optional<UserProfile> createAndSaveUserProfileFromCreateRequest(CreateUserRequestDto request, User user)
-        throws Exception {
-        if (request == null || user == null) {
-            log.warn("Cannot create user profile from null request or user");
-            throw new InvalidRequestDataException("Cannot create user profile from null or empty request");
-        }
-
-        // create the profile
-        UserProfile profile = composeUserProfileEntityFromRequest(request, user);
-
-        // save the profile
-        try {
-            profile = userProfileRepository.save(profile);
-        } catch (Exception ex) {
-            log.error("Error creating new user profile: {} - {}", ex.getClass(), ex.getMessage());
-            throw new Exception("Error creating new user profile", ex);
-        }
-
-        // set profile on user
-        user.setUserProfile(profile);
-
-        return Optional.of(profile);
-    }
-
-    private Optional<UserAddress> createAndSaveUserAddressFromRequest(UserAddressRequestDto request, User user)
-        throws Exception {
-        if (request == null || user == null) {
-            log.warn("Cannot create user address from null request or user");
-            throw new InvalidRequestDataException("Cannot create user address from null or empty request");
-        }
-
-        UserAddress address = composeUserAddressEntityFromRequest(request, user);
-
-        try {
-            address = userAddressRepository.saveAndFlush(address);
-        } catch (Exception ex) {
-            log.error("Error creating new user address for user {}: {}", user.getId(), ex.getMessage());
-            throw new Exception("Error creating new user address", ex);
-        }
-
-        // set address on user
-        user.addAddress(address);
-
-        return Optional.of(address);
-    }
-
-    private User composeUserEntityFromRequest(CreateUserRequestDto request) {
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPasswordHash(request.getPassword()); // TODO: hash this..
-        user.setStatus("active");  // TODO: default to active, need to make this an enum
-        user.setCreatedAt(Instant.now());
-        user.setUpdatedAt(Instant.now());
-        return user;
-    }
-
-    private UserProfile composeUserProfileEntityFromRequest(CreateUserRequestDto request, User user) {
-        UserProfile profile = new UserProfile();
-        profile.setUser(user);
-        profile.setFirstName(request.getFirstName());
-        profile.setLastName(request.getLastName());
-        profile.setPhoneNumber(request.getPhoneNumber());
-        profile.setProfileImageUrl(request.getProfileImageUrl());
-        profile.setCreatedAt(Instant.now());
-        profile.setUpdatedAt(Instant.now());
-        return profile;
-    }
-
-    private UserAddress composeUserAddressEntityFromRequest(UserAddressRequestDto request, User user) {
-        UserAddress address = new UserAddress();
-        address.setUser(user);
-        address.setAddressType(request.getAddressType());
-        address.setAddressLine1(request.getAddressLine1());
-        address.setAddressLine2(request.getAddressLine2());
-        address.setCity(request.getCity());
-        address.setState(request.getState());
-        address.setZipCode(request.getZipCode());
-        address.setCountry(request.getCountry());
-        address.setCreatedAt(Instant.now());
-        address.setUpdatedAt(Instant.now());
-        return address;
     }
 
 }
