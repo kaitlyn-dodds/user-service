@@ -1,5 +1,7 @@
 package kdodds.userservice.utils;
 
+import kdodds.userservice.dto.requests.CreateUserRequestDto;
+import kdodds.userservice.dto.requests.UserAddressRequestDto;
 import kdodds.userservice.dto.responses.PageDto;
 import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
@@ -55,7 +57,6 @@ public class TestDataFactory {
     public static String generateRandomUuid() {
         return java.util.UUID.randomUUID().toString();
     }
-
 
     /**
      * Creates a test CompleteUserData object.
@@ -248,6 +249,40 @@ public class TestDataFactory {
         return PagedUsersResponseDto.builder()
             .users(users)
             .page(page)
+            .build();
+    }
+
+    /**
+     * Create a test CreateUserRequestDto.
+     */
+    public static CreateUserRequestDto createUserRequestDto() {
+        UserAddressRequestDto address = TestDataFactory.createUserAddressRequestDto();
+
+        return CreateUserRequestDto.builder()
+            .username(TestDataFactory.TEST_USER_USERNAME)
+            .email(TestDataFactory.TEST_USER_EMAIL)
+            .password(TestDataFactory.TEST_USER_PASSWORD)
+            .firstName(TestDataFactory.TEST_USER_FIRST_NAME)
+            .lastName(TestDataFactory.TEST_USER_LAST_NAME)
+            .phoneNumber(TestDataFactory.TEST_USER_PHONE_NUMBER)
+            .profileImageUrl(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL)
+            .address(address)
+            .build();
+    }
+
+    /**
+     * Create a test UserAddressRequestDto.
+     *
+     * @return UserAddressRequestDto
+     */
+    public static UserAddressRequestDto createUserAddressRequestDto() {
+        return UserAddressRequestDto.builder()
+            .addressLine1(TestDataFactory.TEST_USER_ADDRESS_LINE_1)
+            .addressType(TestDataFactory.TEST_USER_ADDRESS_TYPE)
+            .city(TestDataFactory.TEST_USER_CITY)
+            .state(TestDataFactory.TEST_USER_STATE)
+            .zipCode(TestDataFactory.TEST_USER_ZIP_CODE)
+            .country(TestDataFactory.TEST_USER_COUNTRY)
             .build();
     }
 

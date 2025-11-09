@@ -2,9 +2,12 @@ package kdodds.userservice.controllers.v1;
 
 import kdodds.userservice.assemblers.PagedUsersModelAssembler;
 import kdodds.userservice.assemblers.UserModelAssembler;
+import kdodds.userservice.dto.requests.CreateUserRequestDto;
 import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
+import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
+import kdodds.userservice.exceptions.models.exceptions.UserConflictException;
 import kdodds.userservice.services.UserService;
 import kdodds.userservice.utils.TestDataFactory;
 import org.junit.jupiter.api.Assertions;
@@ -203,6 +206,245 @@ public class UserControllerTest {
             Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
         } catch (Exception ex) {
             Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController createUser endpoint returns a 201 Created and complete UserResponseDto when given a valid
+     * CreateUserRequestDto.
+     */
+    @Test
+    public void testCreateUser_ValidRequest_ReturnsUserResponse() throws Exception {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+
+        // mock the service call
+        Mockito.when(mockUserService.createUserAndProfileAndAddress(request))
+            .thenReturn(TestDataFactory.createTestUserResponseDto());
+
+        // make request
+        ResponseEntity<EntityModel<UserResponseDto>> response = userController.createUser(request);
+
+        // validate response
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(201, response.getStatusCode().value());
+
+        // validate user and user profile
+        Assertions.assertNotNull(response.getBody());
+        UserResponseDto userResponse = response.getBody().getContent();
+        Assertions.assertNotNull(userResponse);
+        Assertions.assertNotNull(userResponse.getUserId());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_USERNAME, userResponse.getUsername());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_EMAIL, userResponse.getEmail());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_FIRST_NAME, userResponse.getFirstName());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_LAST_NAME, userResponse.getLastName());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_PHONE_NUMBER, userResponse.getPhoneNumber());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL, userResponse.getProfileImageUrl());
+        Assertions.assertNotNull(userResponse.getCreatedAt());
+        Assertions.assertNotNull(userResponse.getUpdatedAt());
+
+        // validate address
+        Assertions.assertNotNull(userResponse.getAddresses());
+        Assertions.assertEquals(1, userResponse.getAddresses().size());
+        Assertions.assertEquals(
+            TestDataFactory.TEST_USER_ADDRESS_LINE_1,
+            userResponse.getAddresses().getFirst().getAddressLine1()
+        );
+        Assertions.assertEquals(
+            TestDataFactory.TEST_USER_ADDRESS_TYPE,
+            userResponse.getAddresses().getFirst().getAddressType()
+        );
+        Assertions.assertEquals(TestDataFactory.TEST_USER_CITY, userResponse.getAddresses().getFirst().getCity());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_STATE, userResponse.getAddresses().getFirst().getState());
+        Assertions.assertEquals(
+            TestDataFactory.TEST_USER_ZIP_CODE,
+            userResponse.getAddresses().getFirst().getZipCode()
+        );
+        Assertions.assertEquals(TestDataFactory.TEST_USER_COUNTRY, userResponse.getAddresses().getFirst().getCountry());
+        Assertions.assertNotNull(userResponse.getAddresses().getFirst().getCreatedAt());
+        Assertions.assertNotNull(userResponse.getAddresses().getFirst().getUpdatedAt());
+
+    }
+
+    /**
+     * Test the UserController createUser endpoint throws an InvalidRequestDataException when the request is null.
+     */
+    @Test
+    public void testCreateUser_NullRequest_ThrowsException() {
+        try {
+            userController.createUser(null);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Request body must be included", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController createUser endpoint throws an InvalidRequestDataException when the request is missing a
+     * username.
+     */
+    @Test
+    public void testCreateUser_IncompleteRequest__MissingUsername_ThrowsException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+
+        // set username to null to make request incomplete
+        request.setUsername(null);
+
+        try {
+            userController.createUser(request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Username must be included", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController createUser endpoint throws an InvalidRequestDataException when the request is missing an
+     * email.
+     */
+    @Test
+    public void testCreateUser_IncompleteRequest__MissingEmail_ThrowsException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+
+        // set email to null to make request incomplete
+        request.setEmail(null);
+
+        try {
+            userController.createUser(request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Email must be included", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController createUser endpoint throws an InvalidRequestDataException when the request is missing a
+     * first name.
+     */
+    @Test
+    public void testCreateUser_IncompleteRequest__MissingFirstName_ThrowsException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+
+        // set first name to null to make request incomplete
+        request.setFirstName(null);
+
+        try {
+            userController.createUser(request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("First name must be included", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController createUser endpoint throws an InvalidRequestDataException when the request is missing a
+     * last name.
+     */
+    @Test
+    public void testCreateUser_IncompleteRequest__MissingLastName_ThrowsException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+
+        // set last name to null to make request incomplete
+        request.setLastName(null);
+
+        try {
+            userController.createUser(request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Last name must be included", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController createUser endpoint throws an InvalidRequestDataException when the request is missing a
+     * password.
+     */
+    @Test
+    public void testCreateUser_IncompleteRequest__MissingPassword_ThrowsException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+
+        // set password to null to make request incomplete
+        request.setPassword(null);
+
+        try {
+            userController.createUser(request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Password must be included", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController createUser endpoint throws an InvalidRequestDataException when the request is missing a
+     * phone number.
+     */
+    @Test
+    public void testCreateUser_IncompleteRequest__MissingPhoneNumber_ThrowsException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+
+        // set phone number to null to make request incomplete
+        request.setPhoneNumber(null);
+
+        try {
+            userController.createUser(request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Phone number must be included", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController createUser endpoint bubbles a UserConflictException when the user already exists.
+     */
+    @Test
+    public void testCreateUser_ConflictingUser_ThrowsException() throws Exception {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+        String exceptionMessage = String.format("User with username %s already exists", request.getUsername());
+
+        // mock the service call to throw a UserConflictException
+        Mockito.when(mockUserService.createUserAndProfileAndAddress(request))
+            .thenThrow(new UserConflictException(exceptionMessage));
+
+        try {
+            userController.createUser(request);
+            Assertions.fail("Expected UserConflictException not thrown");
+        } catch (UserConflictException ex) {
+            Assertions.assertEquals(exceptionMessage, ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController createUser endpoint bubbles an Exception when the service call throws an Exception.
+     */
+    @Test
+    public void testCreateUser_ServiceCallThrowsException_ThrowsException() throws Exception {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+        String exceptionMessage = "Service call failed";
+
+        // mock the service call to throw an Exception
+        Mockito.when(mockUserService.createUserAndProfileAndAddress(request))
+            .thenThrow(new Exception(exceptionMessage));
+
+        try {
+            userController.createUser(request);
+            Assertions.fail("Expected Exception not thrown");
+        } catch (Exception ex) {
+            Assertions.assertEquals(exceptionMessage, ex.getMessage());
         }
     }
 
