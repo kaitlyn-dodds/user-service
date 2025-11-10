@@ -218,7 +218,7 @@ public class UserService {
     public UserResponseDto createUserAndProfileAndAddress(CreateUserRequestDto request) throws Exception {
         if (request == null) {
             log.warn("Cannot create user from null request");
-            throw new InvalidRequestDataException("Cannot create user from null or empty request");
+            throw new InvalidRequestDataException("Cannot create user from null or empty request.");
         }
 
         if (request.getAddress() == null) {

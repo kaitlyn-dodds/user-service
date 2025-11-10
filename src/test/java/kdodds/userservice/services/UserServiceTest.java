@@ -1,5 +1,6 @@
 package kdodds.userservice.services;
 
+import kdodds.userservice.dto.requests.CreateUserRequestDto;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
@@ -7,6 +8,7 @@ import kdodds.userservice.dto.responses.UserResponseDto;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
+import kdodds.userservice.exceptions.models.exceptions.UserConflictException;
 import kdodds.userservice.exceptions.models.exceptions.UserNotFoundException;
 import kdodds.userservice.exceptions.models.exceptions.UserProfileNotFound;
 import kdodds.userservice.repositories.UserAddressRepository;
@@ -20,7 +22,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -569,5 +573,358 @@ public class UserServiceTest {
             Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
         }
     }
+
+    /**
+     * Test the createUserAndProfileAndAndAddress method creates a valid user, profile, and address when given a valid
+     * CreateUserRequestDto.
+     */
+    @Test
+    public void testCreateUserAndProfileAndAndAddress_ValidRequest_CreatesAllEntities() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+
+        // mock the response from the repository to create the user, profile, and address
+        Mockito.when(mockUserRepository.createUserAndProfileAndAddress(
+            request.getUsername(),
+            request.getEmail(),
+            request.getPassword(),
+            request.getFirstName(),
+            request.getLastName(),
+            request.getPhoneNumber(),
+            request.getProfileImageUrl(),
+            request.getAddress().getAddressType(),
+            request.getAddress().getAddressLine1(),
+            request.getAddress().getAddressLine2(),
+            request.getAddress().getCity(),
+            request.getAddress().getState(),
+            request.getAddress().getZipCode(),
+            request.getAddress().getCountry()
+        )).thenReturn(UUID.fromString(TestDataFactory.TEST_USER_ID));
+
+        // mock the response from the repository to find the created user
+        Mockito.when(mockUserRepository.findById(UUID.fromString(TestDataFactory.TEST_USER_ID))).thenReturn(
+            Optional.of(TestDataFactory.createTestUserEntity(TestDataFactory.TEST_USER_ID, true))
+        );
+
+        try {
+            UserResponseDto response = userService.createUserAndProfileAndAddress(request);
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(TestDataFactory.TEST_USER_ID, response.getUserId());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_USERNAME, response.getUsername());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_EMAIL, response.getEmail());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_FIRST_NAME, response.getFirstName());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_LAST_NAME, response.getLastName());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_PHONE_NUMBER, response.getPhoneNumber());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL, response.getProfileImageUrl());
+            Assertions.assertNotNull(response.getAddresses());
+            Assertions.assertEquals(1, response.getAddresses().size());
+            Assertions.assertNotNull(response.getCreatedAt());
+            Assertions.assertNotNull(response.getUpdatedAt());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the createUserAndProfileAndAddress method creates a user and profile when given a valid request without an
+     * address.
+     */
+    @Test
+    public void testCreateUserAndProfileAndAndAddress_ValidRequestWithoutAddress_CreatesUserAndProfile() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+        request.setAddress(null);
+
+        // mock the response from the repository to create the user and profile
+        Mockito.when(mockUserRepository.createUserAndProfile(
+            request.getUsername(),
+            request.getEmail(),
+            request.getPassword(),
+            request.getFirstName(),
+            request.getLastName(),
+            request.getPhoneNumber(),
+            request.getProfileImageUrl()
+        )).thenReturn(UUID.fromString(TestDataFactory.TEST_USER_ID));
+
+        // mock the response from the repository to find the created user
+        Mockito.when(mockUserRepository.findById(UUID.fromString(TestDataFactory.TEST_USER_ID))).thenReturn(
+            Optional.of(TestDataFactory.createTestUserEntity(TestDataFactory.TEST_USER_ID, false))
+        );
+
+        try {
+            UserResponseDto response = userService.createUserAndProfileAndAddress(request);
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(TestDataFactory.TEST_USER_ID, response.getUserId());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_USERNAME, response.getUsername());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_EMAIL, response.getEmail());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_FIRST_NAME, response.getFirstName());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_LAST_NAME, response.getLastName());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_PHONE_NUMBER, response.getPhoneNumber());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL, response.getProfileImageUrl());
+            Assertions.assertNotNull(response.getAddresses());
+            Assertions.assertEquals(0, response.getAddresses().size());
+            Assertions.assertNotNull(response.getCreatedAt());
+            Assertions.assertNotNull(response.getUpdatedAt());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the createUserAndProfileAndAddress method throws an exception when the request is null.
+     */
+    @Test
+    public void testCreateUserAndProfileAndAndAddress_NullRequest_ThrowsInvalidRequestDataException() {
+        CreateUserRequestDto request = null;
+
+        try {
+            userService.createUserAndProfileAndAddress(request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Cannot create user from null or empty request.", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAndProfileAndAddress method throws a UserConflictException when the username already exists.
+     */
+    @Test
+    public void testCreateUserAndProfileAndAndAddress_UsernameAlreadyExists_ThrowsUserConflictException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+
+        // mock the response from the repository to throw a DataIntegrityViolationException with a
+        // ConstraintViolationException cause
+        Mockito.when(mockUserRepository.createUserAndProfileAndAddress(
+            request.getUsername(),
+            request.getEmail(),
+            request.getPassword(),
+            request.getFirstName(),
+            request.getLastName(),
+            request.getPhoneNumber(),
+            request.getProfileImageUrl(),
+            request.getAddress().getAddressType(),
+            request.getAddress().getAddressLine1(),
+            request.getAddress().getAddressLine2(),
+            request.getAddress().getCity(),
+            request.getAddress().getState(),
+            request.getAddress().getZipCode(),
+            request.getAddress().getCountry()
+        )).thenThrow(
+            new DataIntegrityViolationException(
+                "Key constraint",
+                new org.hibernate.exception.ConstraintViolationException(
+                    "users_username_key must be unique",
+                    new SQLException(),
+                    ""
+                )
+            )
+        );
+
+        String exceptionMessage = String.format("User with username %s already exists", request.getUsername());
+        try {
+            userService.createUserAndProfileAndAddress(request);
+            Assertions.fail("Expected UserConflictException not thrown");
+        } catch (UserConflictException ex) {
+            Assertions.assertEquals(exceptionMessage, ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAndProfileAndAddress method throws a UserConflictException when the email already exists.
+     */
+    @Test
+    public void testCreateUserAndProfileAndAndAddress_EmailAlreadyExists_ThrowsUserConflictException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+
+        // mock the response from the repository to throw a DataIntegrityViolationException with a
+        // ConstraintViolationException cause
+        Mockito.when(mockUserRepository.createUserAndProfileAndAddress(
+            request.getUsername(),
+            request.getEmail(),
+            request.getPassword(),
+            request.getFirstName(),
+            request.getLastName(),
+            request.getPhoneNumber(),
+            request.getProfileImageUrl(),
+            request.getAddress().getAddressType(),
+            request.getAddress().getAddressLine1(),
+            request.getAddress().getAddressLine2(),
+            request.getAddress().getCity(),
+            request.getAddress().getState(),
+            request.getAddress().getZipCode(),
+            request.getAddress().getCountry()
+        )).thenThrow(
+            new DataIntegrityViolationException(
+                "Key constraint",
+                new org.hibernate.exception.ConstraintViolationException(
+                    "email must be unique",
+                    new SQLException(),
+                    ""
+                )
+            )
+        );
+
+        String exceptionMessage = String.format("User with email %s already exists", request.getEmail());
+        try {
+            userService.createUserAndProfileAndAddress(request);
+            Assertions.fail("Expected UserConflictException not thrown");
+        } catch (UserConflictException ex) {
+            Assertions.assertEquals(exceptionMessage, ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the UserController createUserAndProfile method throws a UserConflictException when the username already
+     * exists.
+     */
+    @Test
+    public void testCreateUserAndProfile_UsernameAlreadyExists_ThrowsUserConflictException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+        request.setAddress(null);
+
+        // mock the response from the repository to throw a DataIntegrityViolationException with a
+        // ConstraintViolationException cause
+        Mockito.when(mockUserRepository.createUserAndProfile(
+            request.getUsername(),
+            request.getEmail(),
+            request.getPassword(),
+            request.getFirstName(),
+            request.getLastName(),
+            request.getPhoneNumber(),
+            request.getProfileImageUrl()
+        )).thenThrow(
+            new DataIntegrityViolationException(
+                "Key constraint",
+                new org.hibernate.exception.ConstraintViolationException(
+                    "users_username_key must be unique",
+                    new SQLException(),
+                    ""
+                )
+            )
+        );
+
+        String exceptionMessage = String.format("User with username %s already exists", request.getUsername());
+        try {
+            userService.createUserAndProfileAndAddress(request);
+            Assertions.fail("Expected UserConflictException not thrown");
+        } catch (UserConflictException ex) {
+            Assertions.assertEquals(exceptionMessage, ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the UserController createUserAndProfile method throws a UserConflictException when the email already exists.
+     */
+    @Test
+    public void testCreateUserAndProfile_EmailAlreadyExists_ThrowsUserConflictException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+        request.setAddress(null);
+
+        // mock the response from the repository to throw a DataIntegrityViolationException with a
+        // ConstraintViolationException cause
+        Mockito.when(mockUserRepository.createUserAndProfile(
+            request.getUsername(),
+            request.getEmail(),
+            request.getPassword(),
+            request.getFirstName(),
+            request.getLastName(),
+            request.getPhoneNumber(),
+            request.getProfileImageUrl()
+        )).thenThrow(
+            new DataIntegrityViolationException(
+                "Key constraint",
+                new org.hibernate.exception.ConstraintViolationException(
+                    "email must be unique",
+                    new SQLException(),
+                    ""
+                )
+            )
+        );
+
+        String exceptionMessage = String.format("User with email %s already exists", request.getEmail());
+        try {
+            userService.createUserAndProfileAndAddress(request);
+            Assertions.fail("Expected UserConflictException not thrown");
+        } catch (UserConflictException ex) {
+            Assertions.assertEquals(exceptionMessage, ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAndProfileAndAddress method throws an Exception when a generic error occurs during creation.
+     */
+    @Test
+    public void testCreateUserAndProfileAndAndAddress_GenericError_ThrowsException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+
+        // mock the response from the repository to throw a generic exception
+        Mockito.when(mockUserRepository.createUserAndProfileAndAddress(
+            request.getUsername(),
+            request.getEmail(),
+            request.getPassword(),
+            request.getFirstName(),
+            request.getLastName(),
+            request.getPhoneNumber(),
+            request.getProfileImageUrl(),
+            request.getAddress().getAddressType(),
+            request.getAddress().getAddressLine1(),
+            request.getAddress().getAddressLine2(),
+            request.getAddress().getCity(),
+            request.getAddress().getState(),
+            request.getAddress().getZipCode(),
+            request.getAddress().getCountry()
+        )).thenThrow(
+            new RuntimeException("mock exception")
+        );
+
+        try {
+            userService.createUserAndProfileAndAddress(request);
+            Assertions.fail("Expected exception not thrown");
+        } catch (Exception ex) {
+            Assertions.assertEquals("Error creating new user", ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the createUserAndProfile method throws an Exception when a generic error occurs during creation.
+     */
+    @Test
+    public void testCreateUserAndProfile_GenericError_ThrowsException() {
+        CreateUserRequestDto request = TestDataFactory.createUserRequestDto();
+        request.setAddress(null);
+
+        // mock the response from the repository to throw a generic exception
+        Mockito.when(mockUserRepository.createUserAndProfile(
+            request.getUsername(),
+            request.getEmail(),
+            request.getPassword(),
+            request.getFirstName(),
+            request.getLastName(),
+            request.getPhoneNumber(),
+            request.getProfileImageUrl()
+        )).thenThrow(
+            new RuntimeException("mock exception")
+        );
+
+        try {
+            userService.createUserAndProfileAndAddress(request);
+            Assertions.fail("Expected exception not thrown");
+        } catch (Exception ex) {
+            Assertions.assertEquals("Error creating new user", ex.getMessage());
+        }
+    }
+
 }
 
