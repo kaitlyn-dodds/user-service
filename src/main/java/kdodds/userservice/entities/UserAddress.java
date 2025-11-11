@@ -24,7 +24,7 @@ public class UserAddress {
     private UUID id;
 
     @Column(name = "address_type")
-    private String addressType;
+    private String addressType = "Home";
 
     @Column(name = "address_line_1", nullable = false)
     private String addressLine1;

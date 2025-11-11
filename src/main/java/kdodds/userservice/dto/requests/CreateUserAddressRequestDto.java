@@ -10,10 +10,25 @@ import lombok.extern.jackson.Jacksonized;
 @Data
 public class CreateUserAddressRequestDto {
 
-    @JsonProperty(value = "user_id", required = true)
-    private String userId;
+    @JsonProperty("address_type")
+    private String addressType; // billing, shipping, home, etc.
 
-    @JsonProperty(value = "address", required = true)
-    private UserAddressRequestDto address;
+    @JsonProperty(value = "address_line_1", required = true)
+    private String addressLine1;
+
+    @JsonProperty("address_line_2")
+    private String addressLine2;
+
+    @JsonProperty(value = "city", required = true)
+    private String city;
+
+    @JsonProperty(value = "state", required = true)
+    private String state;
+
+    @JsonProperty(value = "zip_code", required = true)
+    private String zipCode;
+
+    @JsonProperty(value = "country", required = true)
+    private String country;
 
 }
