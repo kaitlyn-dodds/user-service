@@ -2,6 +2,7 @@ package kdodds.userservice.controllers.v1;
 
 import kdodds.userservice.assemblers.UserAddressModelAssembler;
 import kdodds.userservice.assemblers.UserAddressesModelAssembler;
+import kdodds.userservice.dto.requests.CreateUserAddressRequestDto;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
@@ -262,5 +263,91 @@ public class UserAddressControllerTest {
         }
     }
 
+    /**
+     * Test the POST /users/{userId}/addresses createUserAddressesForUserId endpoint creates a new user address for the
+     * given user when provided with a valid CreateUserAddressRequestDto.
+     */
+    @Test
+    public void testCreateUserAddressesForUserId_ValidRequest_CreateAddress() throws Exception {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+
+        // mock service call
+        Mockito.when(mockUserService.createUserAddress(TestDataFactory.TEST_USER_ID, request))
+            .thenReturn(TestDataFactory.createTestUserAddressDto(TestDataFactory.TEST_USER_ID));
+
+        ResponseEntity<EntityModel<UserAddressResponseDto>> response = userAddressController
+            .createUserAddressesForUserId(TestDataFactory.TEST_USER_ID, request);
+
+        // validate response
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(201, response.getStatusCode().value());
+
+        // validate user address
+        Assertions.assertNotNull(response.getBody());
+        UserAddressResponseDto userAddressResponse = response.getBody().getContent();
+        Assertions.assertNotNull(userAddressResponse);
+        Assertions.assertNotNull(userAddressResponse.getAddressId());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_ID, userAddressResponse.getUserId());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_ADDRESS_LINE_1, userAddressResponse.getAddressLine1());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_ADDRESS_TYPE, userAddressResponse.getAddressType());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_CITY, userAddressResponse.getCity());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_STATE, userAddressResponse.getState());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_ZIP_CODE, userAddressResponse.getZipCode());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_COUNTRY, userAddressResponse.getCountry());
+        Assertions.assertNotNull(userAddressResponse.getCreatedAt());
+        Assertions.assertNotNull(userAddressResponse.getUpdatedAt());
+    }
+
+    /**
+     * Test the POST /users/{userId}/addresses createUserAddressesForUserId endpoint throws an
+     * InvalidRequestDataException when the userId is null.
+     */
+    @Test
+    public void testCreateUserAddressesForUserId_NullUserId_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+
+        try {
+            userAddressController.createUserAddressesForUserId(null, request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Request body and user id must be included", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the POST /users/{userId}/addresses createUserAddressesForUserId endpoint throws an
+     * InvalidRequestDataException when the userId is empty.
+     */
+    @Test
+    public void testCreateUserAddressesForUserId_EmptyUserId_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+
+        try {
+            userAddressController.createUserAddressesForUserId("", request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Request body and user id must be included", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the POST /users/{userId}/addresses createUserAddressesForUserId endpoint throws an
+     * InvalidRequestDataException when the request body is null.
+     */
+    @Test
+    public void testCreateUserAddressesForUserId_NullRequest_ThrowsInvalidRequestDataException() {
+        try {
+            userAddressController.createUserAddressesForUserId(TestDataFactory.TEST_USER_ID, null);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Request body and user id must be included", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
 
 }

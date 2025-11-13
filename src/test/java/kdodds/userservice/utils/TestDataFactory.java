@@ -1,5 +1,6 @@
 package kdodds.userservice.utils;
 
+import kdodds.userservice.dto.requests.CreateUserAddressRequestDto;
 import kdodds.userservice.dto.requests.CreateUserRequestDto;
 import kdodds.userservice.dto.requests.UserAddressRequestDto;
 import kdodds.userservice.dto.responses.PageDto;
@@ -277,6 +278,17 @@ public class TestDataFactory {
      */
     public static UserAddressRequestDto createUserAddressRequestDto() {
         return UserAddressRequestDto.builder()
+            .addressLine1(TestDataFactory.TEST_USER_ADDRESS_LINE_1)
+            .addressType(TestDataFactory.TEST_USER_ADDRESS_TYPE)
+            .city(TestDataFactory.TEST_USER_CITY)
+            .state(TestDataFactory.TEST_USER_STATE)
+            .zipCode(TestDataFactory.TEST_USER_ZIP_CODE)
+            .country(TestDataFactory.TEST_USER_COUNTRY)
+            .build();
+    }
+
+    public static CreateUserAddressRequestDto createCreateUserAddressRequestDto() {
+        return CreateUserAddressRequestDto.builder()
             .addressLine1(TestDataFactory.TEST_USER_ADDRESS_LINE_1)
             .addressType(TestDataFactory.TEST_USER_ADDRESS_TYPE)
             .city(TestDataFactory.TEST_USER_CITY)

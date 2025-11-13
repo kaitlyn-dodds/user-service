@@ -64,7 +64,7 @@ public class UserAddressController {
         @RequestBody CreateUserAddressRequestDto request
     ) throws Exception {
         if (request == null || userId == null || userId.isEmpty()) {
-            throw new InvalidRequestDataException("Request body or user id must be included");
+            throw new InvalidRequestDataException("Request body and user id must be included");
         }
 
         UserAddressResponseDto address = userService.createUserAddress(userId, request);
