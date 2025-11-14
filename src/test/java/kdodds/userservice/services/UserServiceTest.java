@@ -25,6 +25,8 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+
 @SpringBootTest
 public class UserServiceTest {
 
@@ -641,6 +643,91 @@ public class UserServiceTest {
         } catch (Exception ex) {
             Assertions.assertEquals("Error creating new user", ex.getMessage());
         }
+    }
+
+    /**
+     * Test the deleteUserByUserId method deletes a user when given a valid user id.
+     */
+    @Test
+    public void testDeleteUserByUserId_ValidUserId_DeletesUser() {
+        String userId = TestDataFactory.TEST_USER_ID;
+
+        // mock the response from the repository to delete the user
+        Mockito.doNothing().when(mockUserRepository).deleteById(UUID.fromString(userId));
+
+        try {
+            userService.deleteUserByUserId(userId);
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository call was made
+        Mockito.verify(mockUserRepository, Mockito.times(1)).deleteById(UUID.fromString(userId));
+    }
+
+    /**
+     * Test the deleteUserByUserId method throws an exception when the user id is null.
+     */
+    @Test
+    public void testDeleteUserByUserId_NullUserId_ThrowsException() {
+        String userId = null;
+
+        try {
+            userService.deleteUserByUserId(userId);
+            Assertions.fail("Expected exception not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+
+        // validate the repository call was not made
+        Mockito.verify(mockUserRepository, Mockito.never()).deleteById(any());
+    }
+
+    /**
+     * Test the deleteUserByUserId method throws an exception when the user id is empty.
+     */
+    @Test
+    public void testDeleteUserByUserId_EmptyUserId_ThrowsException() {
+        String userId = "";
+
+        try {
+            userService.deleteUserByUserId(userId);
+            Assertions.fail("Expected exception not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+
+        // validate the repository call was not made
+        Mockito.verify(mockUserRepository, Mockito.never()).deleteById(any());
+    }
+
+    /**
+     * Test the deleteUserByUserId method throws an exception when the repository call fails.
+     */
+    @Test
+    public void testDeleteUserByUserId_RepositoryCallFails_ThrowsException() {
+        String userId = TestDataFactory.TEST_USER_ID;
+
+        // mock the repository to throw an exception
+        Mockito.doThrow(new RuntimeException("mock exception"))
+            .when(mockUserRepository).deleteById(UUID.fromString(userId));
+
+        try {
+            userService.deleteUserByUserId(userId);
+            Assertions.fail("Expected exception not thrown");
+        } catch (Exception ex) {
+            Assertions.assertEquals(
+                String.format("Delete user by id for user id %s failed for unknown reasons", userId),
+                ex.getMessage()
+            );
+        }
+
+        // validate the repository call was made
+        Mockito.verify(mockUserRepository, Mockito.times(1)).deleteById(UUID.fromString(userId));
     }
 
 }

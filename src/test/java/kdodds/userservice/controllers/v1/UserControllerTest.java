@@ -448,4 +448,58 @@ public class UserControllerTest {
         }
     }
 
+    /**
+     * Test the UserController deleteUser endpoint deletes a user when the user id is valid.
+     */
+    @Test
+    public void testDeleteUser_ValidId_DeletesUser() throws Exception {
+        String userId = TestDataFactory.TEST_USER_ID;
+
+        // mock the user service call
+        Mockito.doNothing().when(mockUserService).deleteUserByUserId(userId);
+
+        ResponseEntity<Void> response = userController.deleteUser(userId);
+
+        // validate response
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(204, response.getStatusCode().value());
+
+        // validate user service call
+        Mockito.verify(mockUserService, Mockito.times(1)).deleteUserByUserId(userId);
+    }
+
+    /**
+     * Test the UserController deleteUser endpoint throws an InvalidUserIdException when the user id is empty.
+     */
+    @Test
+    public void testDeleteUser_MissingId_ThrowsInvalidUserIdException() {
+        String userId = "";
+
+        try {
+            userController.deleteUser(userId);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController deleteUser endpoint throws an InvalidUserIdException when the user id is null.
+     */
+    @Test
+    public void testDeleteUser_NullId_ThrowsInvalidUserIdException() {
+        String userId = null;
+
+        try {
+            userController.deleteUser(userId);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
 }

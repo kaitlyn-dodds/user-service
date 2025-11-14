@@ -228,7 +228,10 @@ public class UserService {
             userRepository.deleteById(UUID.fromString(userId));
         } catch (Exception ex) {
             log.error("Error deleting user with id: {}", userId, ex);
-            throw new Exception(String.format("Error deleting user with id: %s", userId), ex);
+            throw new Exception(
+                String.format("Delete user by id for user id %s failed for unknown reasons", userId),
+                ex
+            );
         }
     }
 
