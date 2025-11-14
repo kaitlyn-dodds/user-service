@@ -320,7 +320,7 @@ public class UserAddressServiceTest {
         } catch (UserAddressNotFound ex) {
             Assertions.assertEquals(
                 String.format(
-                    "Find address by id for userId %s and addressId %s failed for unknown reasons",
+                    "No user address found for userId %s and addressId %s",
                     userId,
                     addressId
                 ), ex.getMessage());

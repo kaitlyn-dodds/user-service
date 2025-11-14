@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -101,6 +102,32 @@ public class UserAddressController {
             userAddressModelAssembler.toModel(response),
             HttpStatus.OK
         );
+    }
+
+    /**
+     * Delete a user address by address id.
+     *
+     * @param userId The user id of the owning user.
+     * @param addressId The address id of the address to delete.
+     * @return ResponseEntity<Void>
+     * @throws Exception Throws an exception if the user cannot be deleted.
+     */
+    @DeleteMapping("/{addressId}")
+    public ResponseEntity<Void> deleteUserAddressById(
+        @PathVariable String userId,
+        @PathVariable String addressId
+    ) throws Exception {
+        if (userId == null || userId.isEmpty()) {
+            throw new InvalidUserIdException();
+        }
+
+        if (addressId == null || addressId.isEmpty()) {
+            throw new InvalidRequestDataException("Invalid null or empty address id");
+        }
+
+        userAddressService.deleteUserAddressByAddressId(userId, addressId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

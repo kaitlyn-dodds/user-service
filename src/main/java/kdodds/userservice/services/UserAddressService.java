@@ -60,7 +60,7 @@ public class UserAddressService {
             log.warn("User address not found for address id: {}, user id: {}", addressId, userId);
             throw new UserAddressNotFound(
                 String.format(
-                    "Find address by id for userId %s and addressId %s failed for unknown reasons",
+                    "No user address found for userId %s and addressId %s",
                     userId,
                     addressId
                 )
@@ -103,17 +103,26 @@ public class UserAddressService {
     /**
      * Deletes a user address by address id.
      *
+     * @param userId The user id of the user who owns the address.
      * @param addressId The address id of the address to delete.
      * @throws Exception Throws an exception if the address cannot be deleted.
      */
-    public void deleteUserAddressByAddressId(String addressId) throws Exception {
+    public void deleteUserAddressByAddressId(String userId, String addressId) throws Exception {
+        if (userId == null || userId.isEmpty()) {
+            log.error("Cannot delete user address with null or empty user id.");
+            throw new InvalidUserIdException();
+        }
+
         if (addressId == null || addressId.isEmpty()) {
             log.error("Cannot delete user address with null or empty address id.");
             throw new InvalidRequestDataException("Invalid null or empty address id");
         }
 
         try {
-            userAddressRepository.deleteById(UUID.fromString(addressId));
+            int rowsImpacted = userAddressRepository
+                .deleteAddressById(UUID.fromString(userId), UUID.fromString(addressId));
+
+            log.info("Deleted {} user address(es) for user id: {}", rowsImpacted, userId);
         } catch (Exception ex) {
             log.error("Error deleting user address with id: {}", addressId, ex);
             throw new Exception(String.format("Error deleting user address with id: %s", addressId));
