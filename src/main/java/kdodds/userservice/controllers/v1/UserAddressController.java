@@ -7,7 +7,7 @@ import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
-import kdodds.userservice.services.UserService;
+import kdodds.userservice.services.UserAddressService;
 import lombok.AllArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class UserAddressController {
 
-    private UserService userService;
+    private UserAddressService userAddressService;
 
     private UserAddressModelAssembler userAddressModelAssembler;
 
@@ -43,7 +43,7 @@ public class UserAddressController {
             throw new InvalidUserIdException();
         }
 
-        UserAddressesResponseDto addressesResponseDto = userService.getUserAddressesDtoByUserId(userId);
+        UserAddressesResponseDto addressesResponseDto = userAddressService.getUserAddressesDtoByUserId(userId);
 
         return new ResponseEntity<>(
             userAddressesModelAssembler.toModel(addressesResponseDto),
@@ -67,7 +67,7 @@ public class UserAddressController {
             throw new InvalidRequestDataException("Request body and user id must be included");
         }
 
-        UserAddressResponseDto address = userService.createUserAddress(userId, request);
+        UserAddressResponseDto address = userAddressService.createUserAddress(userId, request);
 
         return new ResponseEntity<>(
             userAddressModelAssembler.toModel(address),
@@ -95,7 +95,7 @@ public class UserAddressController {
             throw new InvalidRequestDataException("Invalid null or empty address id");
         }
 
-        UserAddressResponseDto response = userService.getUserAddressDtoById(userId, addressId);
+        UserAddressResponseDto response = userAddressService.getUserAddressDtoById(userId, addressId);
 
         return new ResponseEntity<>(
             userAddressModelAssembler.toModel(response),

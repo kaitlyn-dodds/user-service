@@ -1,23 +1,17 @@
 package kdodds.userservice.services;
 
-import kdodds.userservice.dto.requests.CreateUserAddressRequestDto;
 import kdodds.userservice.dto.requests.CreateUserRequestDto;
 import kdodds.userservice.dto.responses.PageDto;
 import kdodds.userservice.dto.responses.PagedUsersResponseDto;
-import kdodds.userservice.dto.responses.UserAddressResponseDto;
-import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
 import kdodds.userservice.entities.User;
-import kdodds.userservice.entities.UserAddress;
 import kdodds.userservice.entities.UserProfile;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
-import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
 import kdodds.userservice.exceptions.models.exceptions.UserConflictException;
 import kdodds.userservice.exceptions.models.exceptions.UserNotFoundException;
 import kdodds.userservice.exceptions.models.exceptions.UserProfileNotFound;
-import kdodds.userservice.repositories.UserAddressRepository;
 import kdodds.userservice.repositories.UserProfileRepository;
 import kdodds.userservice.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -28,7 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,8 +34,6 @@ public class UserService {
     private UserRepository userRepository;
 
     private UserProfileRepository userProfileRepository;
-
-    private UserAddressRepository userAddressRepository;
 
     /**
      * Gets all users, paginated.
@@ -141,76 +132,6 @@ public class UserService {
     }
 
     /**
-     * Method to get all user addresses by user id. Returns a list of UserAddresses.
-     *
-     * @param userId User id to use to get the addresses.
-     * @return UserAddressesResponseDto
-     */
-    public UserAddressesResponseDto getUserAddressesDtoByUserId(String userId) throws Exception {
-        if (userId == null || userId.isEmpty()) {
-            throw new InvalidUserIdException();
-        }
-
-        Optional<List<UserAddress>> addresses;
-        try {
-            addresses = userAddressRepository.findAddressesByUserId(UUID.fromString(userId));
-        } catch (Exception ex) {
-            log.error("Error getting user addresses for user id: {}", userId, ex);
-            throw new Exception(
-                String.format("Find addresses by user id for userId %s failed for unknown reasons", userId),
-                ex
-            );
-        }
-
-        if (addresses.isEmpty()) {
-            log.warn("No user addresses found for id: {}", userId);
-            addresses = Optional.of(List.of()); // return empty list
-        }
-
-        return UserAddressesResponseDto.from(userId, addresses.get());
-    }
-
-    /**
-     * Gets a user address by address id. Returns the single UserAddress if found.
-     *
-     * @param userId The user id to use for the test data.
-     * @param addressId The address id to use for the test data.
-     * @return UserAddressResponseDto
-     */
-    public UserAddressResponseDto getUserAddressDtoById(String userId, String addressId) throws Exception {
-        // both ids should be valid UUIDs
-        if (userId == null || userId.isEmpty() || addressId == null || addressId.isEmpty()) {
-            throw new InvalidRequestDataException("Invalid request data.");
-        }
-
-        Optional<UserAddress> address;
-        try {
-            address = userAddressRepository.findById(UUID.fromString(addressId));
-        } catch (Exception ex) {
-            log.error("Error getting user address for user id: {}, address id: {}", userId, addressId, ex);
-            throw new Exception(
-                String.format(
-                    "Find address by id for userId %s and addressId %s failed for unknown reasons", userId, addressId
-                ),
-                ex
-            );
-        }
-
-        if (address.isEmpty()) {
-            log.warn("User address not found for address id: {}, user id: {}", addressId, userId);
-            throw new UserAddressNotFound(
-                String.format(
-                    "Find address by id for userId %s and addressId %s failed for unknown reasons",
-                    userId,
-                    addressId
-                )
-            );
-        }
-
-        return UserAddressResponseDto.fromEntity(address.get());
-    }
-
-    /**
      * Creates a new user. Returns the newly created user as a UserResponseDto.
      *
      * @param request The CreateUserRequestDto to use for the data.
@@ -292,69 +213,6 @@ public class UserService {
     }
 
     /**
-     * Creates a new user address. Returns the newly created user address as a UserAddressResponseDto.
-     *
-     * @param userId The user id of the user who will own the address.
-     * @param request The CreateUserAddressRequestDto to use for the data.
-     * @return UserAddressResponseDto
-     * @throws Exception Throws an exception if the request is invalid or the attempt to create the user address fails.
-     */
-    public UserAddressResponseDto createUserAddress(String userId, CreateUserAddressRequestDto request)
-        throws Exception {
-        // userId should be valid UUID
-        if (userId == null || userId.isEmpty()) {
-            log.error("Cannot create address for null or empty userId.");
-            throw new InvalidUserIdException();
-        }
-
-        // need to validate request data
-        validateCreateUserAddressRequest(request);
-
-        // get the user reference
-        User user = userRepository.getReferenceById(UUID.fromString(userId));
-
-        UserAddress address = new UserAddress();
-        address.setUser(user);
-        address.setAddressLine1(request.getAddressLine1());
-        address.setAddressLine2(request.getAddressLine2());
-        address.setCity(request.getCity());
-        address.setState(request.getState());
-        address.setZipCode(request.getZipCode());
-        address.setCountry(request.getCountry());
-        address.setCreatedAt(Instant.now());
-        address.setUpdatedAt(Instant.now());
-
-        // not a required field, don't overwrite the default unless a value is provided
-        if (request.getAddressType() != null && !request.getAddressType().isEmpty()) {
-            address.setAddressType(request.getAddressType());
-        }
-
-        try {
-            address = userAddressRepository.saveAndFlush(address);
-
-            return UserAddressResponseDto.fromEntity(address);
-        } catch (DataIntegrityViolationException ex) {
-            if (ex.getCause() instanceof org.hibernate.exception.ConstraintViolationException cve) {
-                // check for foreign key constraint
-                if (cve.getMessage().contains("user_addresses_user_id_fkey")) {
-                    log.error("User with id {} does not exist", userId);
-                    throw new UserNotFoundException(userId);
-                }
-            }
-
-            log.error("Error creating user address due to data integrity violation: {}", ex.getMessage());
-            throw new Exception(String.format("Error creating user address for user id: %s", userId), ex);
-        } catch (Exception ex) {
-            log.error(
-                "Error creating user address for user id: {} - {}",
-                userId,
-                ex.getMessage()
-            );
-            throw new Exception(String.format("Error creating user address for user id: %s", userId), ex);
-        }
-    }
-
-    /**
      * Deletes a user by user id.
      *
      * @param userId The user id of the user to delete.
@@ -397,38 +255,6 @@ public class UserService {
         }
 
         return exceptionMessage;
-    }
-
-    private void validateCreateUserAddressRequest(CreateUserAddressRequestDto request) {
-        if (request == null) {
-            log.error("Request body must be included in Create User Address request");
-            throw new InvalidRequestDataException("Request body must be included in Create User Address request");
-        }
-
-        if (request.getAddressLine1() == null || request.getAddressLine1().isEmpty()) {
-            log.error("Address line 1 must be included in create user address request");
-            throw new InvalidRequestDataException("Address line 1 must be included in create user address request");
-        }
-
-        if (request.getCity() == null || request.getCity().isEmpty()) {
-            log.error("City must be included in create user address request");
-            throw new InvalidRequestDataException("City must be included in create user address request");
-        }
-
-        if (request.getState() == null || request.getState().isEmpty()) {
-            log.error("State must be included in create user address request");
-            throw new InvalidRequestDataException("State must be included in create user address request");
-        }
-
-        if (request.getZipCode() == null || request.getZipCode().isEmpty()) {
-            log.error("Zip code must be included in create user address request");
-            throw new InvalidRequestDataException("Zip code must be included in create user address request");
-        }
-
-        if (request.getCountry() == null || request.getCountry().isEmpty()) {
-            log.error("Country must be included in create user address request");
-            throw new InvalidRequestDataException("Country must be included in create user address request");
-        }
     }
 
 }

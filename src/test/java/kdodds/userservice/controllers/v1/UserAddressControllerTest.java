@@ -7,6 +7,7 @@ import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
+import kdodds.userservice.services.UserAddressService;
 import kdodds.userservice.services.UserService;
 import kdodds.userservice.utils.TestDataFactory;
 import org.junit.jupiter.api.Assertions;
@@ -33,6 +34,9 @@ public class UserAddressControllerTest {
     @Mock
     private UserService mockUserService;
 
+    @Mock
+    private UserAddressService mockUserAddressService;
+
     @InjectMocks
     private UserAddressController userAddressController;
 
@@ -42,7 +46,12 @@ public class UserAddressControllerTest {
     @BeforeEach
     public void setup() {
         // clear mocks
-        Mockito.reset(mockUserAddressModelAssembler, mockUserAddressesModelAssembler, mockUserService);
+        Mockito.reset(
+            mockUserAddressModelAssembler,
+            mockUserAddressesModelAssembler,
+            mockUserService,
+            mockUserAddressService
+        );
 
         // mock the user address model assembler to just return the input wrapped in an EntityModel
         Mockito.when(mockUserAddressModelAssembler.toModel(Mockito.any(UserAddressResponseDto.class)))
@@ -69,7 +78,7 @@ public class UserAddressControllerTest {
         String userId = TestDataFactory.TEST_USER_ID;
 
         // mock service call
-        Mockito.when(mockUserService.getUserAddressesDtoByUserId(userId)).thenReturn(
+        Mockito.when(mockUserAddressService.getUserAddressesDtoByUserId(userId)).thenReturn(
             UserAddressesResponseDto.builder()
                 .userId(userId)
                 .addresses(List.of(TestDataFactory.createTestUserAddressDto(userId)))
@@ -161,7 +170,7 @@ public class UserAddressControllerTest {
         String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
 
         // mock user service response
-        Mockito.when(mockUserService.getUserAddressDtoById(userId, addressId)).thenReturn(
+        Mockito.when(mockUserAddressService.getUserAddressDtoById(userId, addressId)).thenReturn(
             TestDataFactory.createTestUserAddressDto(userId)
         );
 
@@ -272,7 +281,7 @@ public class UserAddressControllerTest {
         CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
 
         // mock service call
-        Mockito.when(mockUserService.createUserAddress(TestDataFactory.TEST_USER_ID, request))
+        Mockito.when(mockUserAddressService.createUserAddress(TestDataFactory.TEST_USER_ID, request))
             .thenReturn(TestDataFactory.createTestUserAddressDto(TestDataFactory.TEST_USER_ID));
 
         ResponseEntity<EntityModel<UserAddressResponseDto>> response = userAddressController
