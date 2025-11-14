@@ -3,6 +3,7 @@ package kdodds.userservice.controllers.v1;
 import kdodds.userservice.assemblers.PagedUsersModelAssembler;
 import kdodds.userservice.assemblers.UserModelAssembler;
 import kdodds.userservice.dto.requests.CreateUserRequestDto;
+import kdodds.userservice.dto.requests.PatchUserRequestDto;
 import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -113,6 +115,31 @@ public class UserController {
         userService.deleteUserByUserId(userId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    /**
+     * Updates a user's data.
+     *
+     * @param userId The user id of the user to update.
+     * @param request The PatchUserRequestDto to use for the data.
+     * @return UserResponseDto wrapped in a ResponseEntity.
+     * @throws Exception Throws an exception if the request is invalid or the attempt to update the user fails.
+     */
+    @PatchMapping("/{userId}")
+    public ResponseEntity<EntityModel<UserResponseDto>> updateUser(
+        @PathVariable String userId,
+        @RequestBody PatchUserRequestDto request
+    ) throws Exception {
+        if (userId == null || userId.isEmpty()) {
+            throw new InvalidUserIdException();
+        }
+
+        UserResponseDto updatedUser = userService.updateUser(userId, request);
+
+        return new ResponseEntity<>(
+            userModelAssembler.toModel(updatedUser),
+            HttpStatus.OK
+        );
     }
 
     private void validateCreateUserRequest(CreateUserRequestDto request) {

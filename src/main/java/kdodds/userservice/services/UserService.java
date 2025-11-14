@@ -1,6 +1,7 @@
 package kdodds.userservice.services;
 
 import kdodds.userservice.dto.requests.CreateUserRequestDto;
+import kdodds.userservice.dto.requests.PatchUserRequestDto;
 import kdodds.userservice.dto.responses.PageDto;
 import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserProfileResponseDto;
@@ -233,6 +234,103 @@ public class UserService {
                 ex
             );
         }
+    }
+
+    /**
+     * Updates a user by user id.
+     *
+     * @param userId The user id of the user to update.
+     * @param request The PatchUserRequestDto to use for the data.
+     * @return UserResponseDto
+     * @throws Exception Throws an exception if the request is invalid or attempt to update the user fails.
+     */
+    public UserResponseDto updateUser(String userId, PatchUserRequestDto request) throws Exception {
+        if (userId == null || userId.isEmpty()) {
+            log.error("Cannot update user with null or empty userId.");
+            throw new InvalidUserIdException();
+        }
+
+        // TODO: allow complex changes, for now, do not allow changes to username or email
+        if ((request.getEmail() != null && !request.getEmail().isEmpty())
+            || request.getUsername() != null && !request.getUsername().isEmpty()) {
+            throw new InvalidRequestDataException("Cannot change username or email");
+        }
+
+        // build the updated entity
+        User user = userRepository.findById(UUID.fromString(userId))
+            .orElseThrow(() -> new UserNotFoundException(userId));
+
+        boolean updateNeeded = applyUpdates(request, user);
+
+        if (!updateNeeded) {
+            log.info("No changes detected for update user with id: {}", userId);
+            return UserResponseDto.fromEntity(user);
+        }
+
+        try {
+            user = userRepository.save(user);
+            return UserResponseDto.fromEntity(user);
+        } catch (Exception ex) {
+            log.error("Error updating user with id: {}", userId, ex);
+            throw new Exception(
+                String.format("Update user by id for user id %s failed for unknown reasons", userId),
+                ex
+            );
+        }
+    }
+
+    private static boolean applyUpdates(PatchUserRequestDto request, User user) {
+        // track if write to db is really necessary
+        boolean updateNeeded = false;
+
+        // first name cannot be set to null or empty, also check if different
+        if (request.getFirstName() != null && !request.getFirstName().equals(user.getUserProfile().getFirstName())) {
+            // if the first name is empty, throw InvalidRequestDataException
+            if (request.getFirstName().isEmpty()) {
+                throw new InvalidRequestDataException("First name cannot be empty");
+            }
+
+            user.getUserProfile().setFirstName(request.getFirstName());
+            updateNeeded = true;
+        }
+
+        // last name cannot be set to null or empty, also check if different
+        if (request.getLastName() != null && !request.getLastName().equals(user.getUserProfile().getLastName())) {
+            // if the last name is empty, throw InvalidRequestDataException
+            if (request.getLastName().isEmpty()) {
+                throw new InvalidRequestDataException("Last name cannot be empty");
+            }
+
+            user.getUserProfile().setLastName(request.getLastName());
+            updateNeeded = true;
+        }
+
+        // phone number cannot be set to null or empty, also check if different
+        if (request.getPhoneNumber() != null
+            && !request.getPhoneNumber().equals(user.getUserProfile().getPhoneNumber())) {
+            // if the phone number is empty, throw InvalidRequestDataException
+            if (request.getPhoneNumber().isEmpty()) {
+                throw new InvalidRequestDataException("Phone number cannot be empty");
+            }
+
+            user.getUserProfile().setPhoneNumber(request.getPhoneNumber());
+            updateNeeded = true;
+        }
+
+        // user profile image cannot be null but can be empty, also check if different
+        if (request.getProfileImageUrl() != null
+            && !request.getProfileImageUrl().equals(user.getUserProfile().getProfileImageUrl())) {
+            // if the image url is empty, set it to null in the db
+            if (request.getProfileImageUrl().isEmpty()) {
+                user.getUserProfile().setProfileImageUrl(null);
+            } else {
+                user.getUserProfile().setProfileImageUrl(request.getProfileImageUrl());
+            }
+
+            updateNeeded = true;
+        }
+
+        return updateNeeded;
     }
 
     private String handleDataIntegrityViolationException(

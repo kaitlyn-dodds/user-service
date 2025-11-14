@@ -21,8 +21,8 @@ public class JacksonConfig {
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
 
-        // don't serialize null or empty values
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        // don't serialize null values
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         // use snake case for JSON properties
         mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);

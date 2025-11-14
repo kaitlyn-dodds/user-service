@@ -23,9 +23,11 @@ public class UserAddressesResponseDtoTest {
         UserAddressesResponseDto response = TestDataFactory.createTestUserAddressesDto();
 
         String expectedJson = "{"
+            + "\"links\":[],"
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"addresses\":["
             + "{"
+            + "\"links\":[],"
             + "\"address_id\":\"" + response.getAddresses().getFirst().getAddressId() + "\","
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"address_type\":\"" + TestDataFactory.TEST_USER_ADDRESS_TYPE + "\","

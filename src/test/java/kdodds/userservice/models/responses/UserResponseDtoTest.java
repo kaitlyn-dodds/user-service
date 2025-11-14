@@ -22,6 +22,7 @@ public class UserResponseDtoTest {
         UserResponseDto response = TestDataFactory.createTestUserResponseDto(TestDataFactory.TEST_USER_ID);
 
         String expectedJson = "{"
+            + "\"links\":[],"
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"username\":\"" + TestDataFactory.TEST_USER_USERNAME + "\","
             + "\"email\":\"" + TestDataFactory.TEST_USER_EMAIL + "\","
@@ -31,6 +32,7 @@ public class UserResponseDtoTest {
             + "\"profile_image_url\":\"" + TestDataFactory.TEST_USER_PROFILE_IMAGE_URL + "\","
             + "\"addresses\":["
             + "{"
+            + "\"links\":[],"
             + "\"address_id\":\"" + response.getAddresses().getFirst().getAddressId() + "\","
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"address_type\":\"" + TestDataFactory.TEST_USER_ADDRESS_TYPE + "\","

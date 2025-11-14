@@ -24,6 +24,7 @@ public class UserProfileResponseTest {
 
         // expected json
         String expected = "{"
+            + "\"links\":[],"
             + "\"user_id\":\"" + TestDataFactory.TEST_USER_ID + "\","
             + "\"first_name\":\"" + TestDataFactory.TEST_USER_FIRST_NAME + "\","
             + "\"last_name\":\"" + TestDataFactory.TEST_USER_LAST_NAME + "\","
