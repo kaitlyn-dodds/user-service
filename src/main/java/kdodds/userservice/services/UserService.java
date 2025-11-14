@@ -354,6 +354,26 @@ public class UserService {
         }
     }
 
+    /**
+     * Deletes a user by user id.
+     *
+     * @param userId The user id of the user to delete.
+     * @throws Exception Throws an exception if the user cannot be deleted.
+     */
+    public void deleteUserByUserId(String userId) throws Exception {
+        if (userId == null || userId.isEmpty()) {
+            log.error("Cannot delete user with null or empty userId.");
+            throw new InvalidUserIdException();
+        }
+
+        try {
+            userRepository.deleteById(UUID.fromString(userId));
+        } catch (Exception ex) {
+            log.error("Error deleting user with id: {}", userId, ex);
+            throw new Exception(String.format("Error deleting user with id: %s", userId), ex);
+        }
+    }
+
     private String handleDataIntegrityViolationException(
         DataIntegrityViolationException ex,
         CreateUserRequestDto request

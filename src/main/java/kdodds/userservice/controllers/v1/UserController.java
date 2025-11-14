@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -93,6 +94,25 @@ public class UserController {
             userModelAssembler.toModel(user),
             HttpStatus.CREATED
         );
+    }
+
+    /**
+     * Deletes a user by user id.
+     *
+     * @param userId The user id of the user to delete.
+     * @return ResponseEntity<Void>
+     * @throws Exception Throws an exception if the user cannot be deleted.
+     */
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId) throws Exception {
+        if (userId == null || userId.isEmpty()) {
+            throw new InvalidUserIdException();
+        }
+
+        // call service
+        userService.deleteUserByUserId(userId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     private void validateCreateUserRequest(CreateUserRequestDto request) {
