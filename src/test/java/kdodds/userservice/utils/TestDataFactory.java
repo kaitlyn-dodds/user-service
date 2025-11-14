@@ -287,6 +287,11 @@ public class TestDataFactory {
             .build();
     }
 
+    /**
+     * Create a test CreateUserAddressRequestDto.
+     *
+     * @return CreateUserAddressRequestDto
+     */
     public static CreateUserAddressRequestDto createCreateUserAddressRequestDto() {
         return CreateUserAddressRequestDto.builder()
             .addressLine1(TestDataFactory.TEST_USER_ADDRESS_LINE_1)

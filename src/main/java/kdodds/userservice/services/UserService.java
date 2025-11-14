@@ -303,7 +303,7 @@ public class UserService {
         throws Exception {
         // userId should be valid UUID
         if (userId == null || userId.isEmpty()) {
-            log.error("User id must be included");
+            log.error("Cannot create address for null or empty userId.");
             throw new InvalidUserIdException();
         }
 
@@ -332,7 +332,7 @@ public class UserService {
         try {
             address = userAddressRepository.saveAndFlush(address);
 
-            return UserAddressResponseDto.fromEntity(userAddressRepository.findById(address.getId()).get());
+            return UserAddressResponseDto.fromEntity(address);
         } catch (DataIntegrityViolationException ex) {
             if (ex.getCause() instanceof org.hibernate.exception.ConstraintViolationException cve) {
                 // check for foreign key constraint
@@ -381,33 +381,33 @@ public class UserService {
 
     private void validateCreateUserAddressRequest(CreateUserAddressRequestDto request) {
         if (request == null) {
-            log.error("Request body must be included");
-            throw new InvalidRequestDataException("Request body must be included");
+            log.error("Request body must be included in Create User Address request");
+            throw new InvalidRequestDataException("Request body must be included in Create User Address request");
         }
 
         if (request.getAddressLine1() == null || request.getAddressLine1().isEmpty()) {
-            log.error("Address line 1 must be included");
-            throw new InvalidRequestDataException("Address line 1 must be included");
+            log.error("Address line 1 must be included in create user address request");
+            throw new InvalidRequestDataException("Address line 1 must be included in create user address request");
         }
 
         if (request.getCity() == null || request.getCity().isEmpty()) {
-            log.error("City must be included");
-            throw new InvalidRequestDataException("City must be included");
+            log.error("City must be included in create user address request");
+            throw new InvalidRequestDataException("City must be included in create user address request");
         }
 
         if (request.getState() == null || request.getState().isEmpty()) {
-            log.error("State must be included");
-            throw new InvalidRequestDataException("State must be included");
+            log.error("State must be included in create user address request");
+            throw new InvalidRequestDataException("State must be included in create user address request");
         }
 
         if (request.getZipCode() == null || request.getZipCode().isEmpty()) {
-            log.error("Zip code must be included");
-            throw new InvalidRequestDataException("Zip code must be included");
+            log.error("Zip code must be included in create user address request");
+            throw new InvalidRequestDataException("Zip code must be included in create user address request");
         }
 
         if (request.getCountry() == null || request.getCountry().isEmpty()) {
-            log.error("Country must be included");
-            throw new InvalidRequestDataException("Country must be included");
+            log.error("Country must be included in create user address request");
+            throw new InvalidRequestDataException("Country must be included in create user address request");
         }
     }
 

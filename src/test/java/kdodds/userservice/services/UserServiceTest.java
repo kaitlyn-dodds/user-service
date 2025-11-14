@@ -1,5 +1,6 @@
 package kdodds.userservice.services;
 
+import kdodds.userservice.dto.requests.CreateUserAddressRequestDto;
 import kdodds.userservice.dto.requests.CreateUserRequestDto;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
@@ -28,6 +29,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
 public class UserServiceTest {
@@ -923,6 +926,345 @@ public class UserServiceTest {
             Assertions.fail("Expected exception not thrown");
         } catch (Exception ex) {
             Assertions.assertEquals("Error creating new user", ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method creates a valid address when given a valid request and userId.
+     */
+    @Test
+    public void testCreateUserAddress_ValidRequest_CreatesAddress() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+
+        // mock the repository response (user reference)
+        Mockito.when(mockUserRepository.getReferenceById(UUID.fromString(TestDataFactory.TEST_USER_ID))).thenReturn(
+            TestDataFactory.createTestUserEntity(TestDataFactory.TEST_USER_ID, true)
+        );
+
+        // mock the repository response (saveAndFlush)
+        Mockito.when(mockUserAddressRepository.saveAndFlush(any()))
+            .thenReturn(TestDataFactory.createTestUserAddressEntity(
+                TestDataFactory.TEST_USER_ID
+            ));
+
+        // mock the repository response (findById)
+        Mockito.when(mockUserAddressRepository.findById(any())).thenReturn(
+            Optional.of(TestDataFactory.createTestUserAddressEntity(TestDataFactory.TEST_USER_ID))
+        );
+
+        try {
+            UserAddressResponseDto response = userService.createUserAddress(
+                TestDataFactory.TEST_USER_ID,
+                request
+            );
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(TestDataFactory.TEST_USER_ID, response.getUserId());
+            Assertions.assertEquals(TestDataFactory.TEST_ADDRESS_ID_1, response.getAddressId());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_ADDRESS_LINE_1, response.getAddressLine1());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_ADDRESS_TYPE, response.getAddressType());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_CITY, response.getCity());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_STATE, response.getState());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_ZIP_CODE, response.getZipCode());
+            Assertions.assertEquals(TestDataFactory.TEST_USER_COUNTRY, response.getCountry());
+            Assertions.assertNotNull(response.getCreatedAt());
+            Assertions.assertNotNull(response.getUpdatedAt());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the userId is null.
+     */
+    @Test
+    public void testCreateUserAddress_NullUserId_ThrowsInvalidUserIdException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+
+        try {
+            userService.createUserAddress(null, request);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the userId is empty.
+     */
+    @Test
+    public void testCreateUserAddress_EmptyUserId_ThrowsInvalidUserIdException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+
+        try {
+            userService.createUserAddress("", request);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the request is null.
+     */
+    @Test
+    public void testCreateUserAddress_NullRequest_ThrowsInvalidRequestDataException() {
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, null);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Request body must be included in Create User Address request", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the request has a null address line 1.
+     */
+    @Test
+    public void testCreateUserAddress_RequestNullAddressLine1_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+        request.setAddressLine1(null);
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Address line 1 must be included in create user address request", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the request has an empty address line 1.
+     */
+    @Test
+    public void testCreateUserAddress_RequestEmptyAddressLine1_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+        request.setAddressLine1("");
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Address line 1 must be included in create user address request", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the request has a null city.
+     */
+    @Test
+    public void testCreateUserAddress_RequestNullCity_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+        request.setCity(null);
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("City must be included in create user address request", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the request has an empty city.
+     */
+    @Test
+    public void testCreateUserAddress_RequestEmptyAddressCity_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+        request.setCity("");
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("City must be included in create user address request", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the request has a null state.
+     */
+    @Test
+    public void testCreateUserAddress_RequestNullState_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+        request.setState(null);
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("State must be included in create user address request", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the request has an empty state.
+     */
+    @Test
+    public void testCreateUserAddress_RequestEmptyAddressState_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+        request.setState("");
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("State must be included in create user address request", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the request has a null zip code.
+     */
+    @Test
+    public void testCreateUserAddress_RequestNullZipCode_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+        request.setZipCode(null);
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Zip code must be included in create user address request", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the request has an empty zip code.
+     */
+    @Test
+    public void testCreateUserAddress_RequestEmptyAddressZipCode_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+        request.setZipCode("");
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Zip code must be included in create user address request", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the request has a null country.
+     */
+    @Test
+    public void testCreateUserAddress_RequestNullCountry_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+        request.setCountry(null);
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Country must be included in create user address request", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the request has an empty country.
+     */
+    @Test
+    public void testCreateUserAddress_RequestEmptyCountry_ThrowsInvalidRequestDataException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+        request.setCountry("");
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Country must be included in create user address request", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the user does not exist.
+     */
+    @Test
+    public void testCreateUserAddress_UserDoesNotExist_ThrowsUserNotFoundException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+
+        // mock the user repository response
+        Mockito.when(mockUserRepository.getReferenceById(UUID.fromString(TestDataFactory.TEST_USER_ID)))
+            .thenReturn(null);
+
+        // mock the user address repo saveAndFlush to throw a DataIntegrityViolationException w/ a
+        // ConstraintViolationException
+        Mockito.when(mockUserAddressRepository.saveAndFlush(any()))
+            .thenThrow(
+                new DataIntegrityViolationException(
+                    "Key constraint",
+                    new org.hibernate.exception.ConstraintViolationException(
+                        "user_addresses_user_id_fkey does not exist",
+                        new SQLException(),
+                        ""
+                    )
+                )
+            );
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected UserNotFoundException not thrown");
+        } catch (UserNotFoundException ex) {
+            Assertions.assertEquals(
+                String.format("User with id %s not found", TestDataFactory.TEST_USER_ID),
+                ex.getMessage()
+            );
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the createUserAddress method throws an exception when the call to the repository throws an exception.
+     */
+    @Test
+    public void testCreateUserAddress_RepositoryThrowsException_ThrowsUserAddressException() {
+        CreateUserAddressRequestDto request = TestDataFactory.createCreateUserAddressRequestDto();
+
+        // mock the user repository response
+        Mockito.when(mockUserRepository.getReferenceById(UUID.fromString(TestDataFactory.TEST_USER_ID)))
+            .thenReturn(TestDataFactory.createTestUserEntity(TestDataFactory.TEST_USER_ID, true));
+
+        // mock the user address repo response
+        Mockito.when(mockUserAddressRepository.saveAndFlush(any()))
+            .thenThrow(new RuntimeException("mock exception"));
+
+        try {
+            userService.createUserAddress(TestDataFactory.TEST_USER_ID, request);
+            Assertions.fail("Expected Exception not thrown");
+        } catch (Exception ex) {
+            Assertions.assertEquals(
+                String.format("Error creating user address for user id: %s", TestDataFactory.TEST_USER_ID),
+                ex.getMessage()
+            );
         }
     }
 
