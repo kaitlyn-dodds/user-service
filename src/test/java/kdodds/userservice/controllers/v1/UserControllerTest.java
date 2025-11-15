@@ -3,6 +3,7 @@ package kdodds.userservice.controllers.v1;
 import kdodds.userservice.assemblers.PagedUsersModelAssembler;
 import kdodds.userservice.assemblers.UserModelAssembler;
 import kdodds.userservice.dto.requests.CreateUserRequestDto;
+import kdodds.userservice.dto.requests.PatchUserRequestDto;
 import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
@@ -21,6 +22,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.Instant;
 import java.util.List;
 
 @ActiveProfiles("test")
@@ -494,6 +496,149 @@ public class UserControllerTest {
 
         try {
             userController.deleteUser(userId);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController updateUser endpoint updates a user when the user id is valid and the request is valid.
+     */
+    @Test
+    public void testUpdateUser_ValidRequest_UpdatesUser() throws Exception {
+        PatchUserRequestDto request = TestDataFactory.createPatchUserRequestDto();
+        // set the request values to something unique
+        request.setFirstName("updated-" + request.getFirstName());
+        request.setLastName("updated-" + request.getLastName());
+        request.setPhoneNumber("updated-" + request.getPhoneNumber());
+        request.setProfileImageUrl("updated-" + request.getProfileImageUrl());
+        Instant updatedAt = Instant.now();
+
+        String userId = TestDataFactory.TEST_USER_ID;
+
+        // mock the user service call
+        Mockito.when(mockUserService.updateUser(userId, request))
+            .thenAnswer(invocation -> {
+                PatchUserRequestDto requestDto = invocation.getArgument(1);
+
+                UserResponseDto response = TestDataFactory.createTestUserResponseDto(TestDataFactory.TEST_USER_ID);
+
+                // set the response values to the request values
+                response.setFirstName(requestDto.getFirstName());
+                response.setLastName(requestDto.getLastName());
+                response.setPhoneNumber(requestDto.getPhoneNumber());
+                response.setProfileImageUrl(requestDto.getProfileImageUrl());
+                response.setUpdatedAt(updatedAt);
+
+                return response;
+            });
+
+        ResponseEntity<EntityModel<UserResponseDto>> response = userController.updateUser(userId, request);
+
+        // validate response
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(200, response.getStatusCode().value());
+
+        // validate user and user profile
+        Assertions.assertNotNull(response.getBody());
+        UserResponseDto userResponse = response.getBody().getContent();
+        Assertions.assertNotNull(userResponse);
+        Assertions.assertEquals(userId, userResponse.getUserId());
+
+        // check that the request values were updated
+        Assertions.assertEquals(request.getFirstName(), userResponse.getFirstName());
+        Assertions.assertEquals(request.getLastName(), userResponse.getLastName());
+        Assertions.assertEquals(request.getPhoneNumber(), userResponse.getPhoneNumber());
+        Assertions.assertEquals(request.getProfileImageUrl(), userResponse.getProfileImageUrl());
+
+        // check the updated at timestamp was updated
+        Assertions.assertEquals(updatedAt, userResponse.getUpdatedAt());
+    }
+
+    /**
+     * Test the UserController updateUser endpoint only updates the request values that are set on the request.
+     */
+    @Test
+    public void testUpdateUser_PartialRequest_UpdatesUser() throws Exception {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserRequestDto request = TestDataFactory.createPatchUserRequestDto();
+        // set some of the request values to something unique
+        request.setLastName("updated-" + request.getLastName());
+        request.setProfileImageUrl("updated-" + request.getProfileImageUrl());
+        Instant updatedAt = Instant.now();
+
+        // mock the user service call
+        Mockito.when(mockUserService.updateUser(userId, request))
+            .thenAnswer(invocation -> {
+                PatchUserRequestDto requestDto = invocation.getArgument(1);
+
+                UserResponseDto response = TestDataFactory.createTestUserResponseDto(TestDataFactory.TEST_USER_ID);
+
+                // set the response values to the request values
+                response.setLastName(requestDto.getLastName());
+                response.setProfileImageUrl(requestDto.getProfileImageUrl());
+                response.setUpdatedAt(updatedAt);
+
+                return response;
+            });
+
+        ResponseEntity<EntityModel<UserResponseDto>> response = userController.updateUser(userId, request);
+
+        // validate response
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(200, response.getStatusCode().value());
+
+        // validate user and user profile
+        Assertions.assertNotNull(response.getBody());
+        UserResponseDto userResponse = response.getBody().getContent();
+        Assertions.assertNotNull(userResponse);
+        Assertions.assertEquals(userId, userResponse.getUserId());
+
+        // check that the request values were updated
+        Assertions.assertEquals(request.getLastName(), userResponse.getLastName());
+        Assertions.assertEquals(request.getProfileImageUrl(), userResponse.getProfileImageUrl());
+
+        // verify the unset request values were not updated
+        Assertions.assertEquals(TestDataFactory.TEST_USER_USERNAME, userResponse.getUsername());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_EMAIL, userResponse.getEmail());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_FIRST_NAME, userResponse.getFirstName());
+        Assertions.assertEquals(TestDataFactory.TEST_USER_PHONE_NUMBER, userResponse.getPhoneNumber());
+
+        // check the updated at timestamp was updated
+        Assertions.assertEquals(updatedAt, userResponse.getUpdatedAt());
+    }
+
+    /**
+     * Test the UserController updateUser endpoint throws an InvalidUserIdException when the user id is empty.
+     */
+    @Test
+    public void testUpdateUser_MissingId_ThrowsInvalidUserIdException() {
+        String userId = "";
+        PatchUserRequestDto request = TestDataFactory.createPatchUserRequestDto();
+
+        try {
+            userController.updateUser(userId, request);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the UserController updateUser endpoint throws an InvalidUserIdException when the user id is null.
+     */
+    @Test
+    public void testUpdateUser_NullId_ThrowsInvalidUserIdException() {
+        String userId = null;
+        PatchUserRequestDto request = TestDataFactory.createPatchUserRequestDto();
+
+        try {
+            userController.updateUser(userId, request);
             Assertions.fail("Expected InvalidUserIdException not thrown");
         } catch (InvalidUserIdException ex) {
             Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());

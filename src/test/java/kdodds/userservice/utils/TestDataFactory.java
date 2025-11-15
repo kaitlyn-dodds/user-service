@@ -2,6 +2,7 @@ package kdodds.userservice.utils;
 
 import kdodds.userservice.dto.requests.CreateUserAddressRequestDto;
 import kdodds.userservice.dto.requests.CreateUserRequestDto;
+import kdodds.userservice.dto.requests.PatchUserRequestDto;
 import kdodds.userservice.dto.requests.UserAddressRequestDto;
 import kdodds.userservice.dto.responses.PageDto;
 import kdodds.userservice.dto.responses.PagedUsersResponseDto;
@@ -300,6 +301,20 @@ public class TestDataFactory {
             .state(TestDataFactory.TEST_USER_STATE)
             .zipCode(TestDataFactory.TEST_USER_ZIP_CODE)
             .country(TestDataFactory.TEST_USER_COUNTRY)
+            .build();
+    }
+
+    /**
+     * Create a test PatchUserRequestDto.
+     *
+     * @return PatchUserRequestDto
+     */
+    public static PatchUserRequestDto createPatchUserRequestDto() {
+        return PatchUserRequestDto.builder()
+            .firstName(TestDataFactory.TEST_USER_FIRST_NAME)
+            .lastName(TestDataFactory.TEST_USER_LAST_NAME)
+            .phoneNumber(TestDataFactory.TEST_USER_PHONE_NUMBER)
+            .profileImageUrl(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL)
             .build();
     }
 
