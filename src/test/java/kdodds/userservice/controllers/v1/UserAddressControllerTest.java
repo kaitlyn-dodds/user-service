@@ -359,4 +359,103 @@ public class UserAddressControllerTest {
         }
     }
 
+    /**
+     * Test the DELETE /users/{userId}/addresses/{addressId} deleteUserAddress endpoint deletes an existing user address
+     * for the given user when provided with a valid address id.
+     */
+    @Test
+    public void testDeleteUserAddress_ValidRequest_DeleteAddress() throws Exception {
+        String userId = TestDataFactory.TEST_USER_ID;
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+
+        // mock user address service call (does nothing)
+        Mockito.doNothing().when(mockUserAddressService).deleteUserAddressByAddressId(userId, addressId);
+
+        ResponseEntity<Void> response = userAddressController.deleteUserAddressById(userId, addressId);
+
+        // validate response
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(204, response.getStatusCode().value());
+
+        // validate user address service call
+        Mockito.verify(mockUserAddressService, Mockito.times(1))
+            .deleteUserAddressByAddressId(userId, addressId);
+    }
+
+    /**
+     * Test the DELETE /users/{userId}/addresses/{addressId} deleteUserAddress endpoint throws an InvalidUserIdException
+     * when the user id is empty.
+     */
+    @Test
+    public void testDeleteUserAddress_MissingUserId_ThrowsInvalidUserIdException() {
+        String userId = "";
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+
+        try {
+            userAddressController.deleteUserAddressById(userId, addressId);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the DELETE /users/{userId}/addresses/{addressId} deleteUserAddress endpoint throws an InvalidUserIdException
+     * when the user id is null.
+     */
+    @Test
+    public void testDeleteUserAddress_NullUserId_ThrowsInvalidUserIdException() {
+        String userId = null;
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+
+        try {
+            userAddressController.deleteUserAddressById(userId, addressId);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the DELETE /users/{userId}/addresses/{addressId} deleteUserAddress endpoint throws an InvalidRequestData
+     * exception when the address id is empty.
+     */
+    @Test
+    public void testDeleteUserAddress_MissingAddressId_ThrowsInvalidRequestData() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        String addressId = "";
+
+        try {
+            userAddressController.deleteUserAddressById(userId, addressId);
+            Assertions.fail("Expected InvalidRequestData exception not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Invalid null or empty address id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the DELETE /users/{userId}/addresses/{addressId} deleteUserAddress endpoint throws an InvalidRequestData
+     * exception when the address id is null.
+     */
+    @Test
+    public void testDeleteUserAddress_NullAddressId_ThrowsInvalidRequestData() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        String addressId = null;
+
+        try {
+            userAddressController.deleteUserAddressById(userId, addressId);
+            Assertions.fail("Expected InvalidRequestData exception not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Invalid null or empty address id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
 }
