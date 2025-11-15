@@ -668,4 +668,116 @@ public class UserAddressServiceTest {
         }
     }
 
+    /**
+     * Test the deleteUserAddressByAddressId method deletes an address when the address exists.
+     */
+    @Test
+    public void testDeleteUserAddressByAddressId_ValidRequest_DeletesAddress() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+
+        // mock the user address repository response
+        Mockito.when(mockUserAddressRepository.deleteAddressById(
+            UUID.fromString(userId), UUID.fromString(addressId))
+        ).thenReturn(1);
+
+        try {
+            userAddressService.deleteUserAddressByAddressId(userId, addressId);
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository call
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .deleteAddressById(UUID.fromString(userId), UUID.fromString(addressId));
+    }
+
+    /**
+     * Test the deleteUserAddressByAddressId method throws an exception when the userId is null.
+     */
+    @Test
+    public void testDeleteUserAddressByAddressId_NullUserId_ThrowsInvalidUserIdException() {
+        try {
+            userAddressService.deleteUserAddressByAddressId(null, TestDataFactory.TEST_ADDRESS_ID_1);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the deleteUserAddressByAddressId method throws an exception when the userId is empty.
+     */
+    @Test
+    public void testDeleteUserAddressByAddressId_EmptyUserId_ThrowsInvalidUserIdException() {
+        try {
+            userAddressService.deleteUserAddressByAddressId("", TestDataFactory.TEST_ADDRESS_ID_1);
+            Assertions.fail("Expected InvalidUserIdException not thrown");
+        } catch (InvalidUserIdException ex) {
+            Assertions.assertEquals("Invalid null or empty user id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the deleteUserAddressByAddressId method throws an exception when the addressId is null.
+     */
+    @Test
+    public void testDeleteUserAddressByAddressId_NullAddressId_ThrowsInvalidRequestDataException() {
+        try {
+            userAddressService.deleteUserAddressByAddressId(TestDataFactory.TEST_USER_ID, null);
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Invalid null or empty address id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the deleteUserAddressByAddressId method throws an exception when the addressId is empty.
+     */
+    @Test
+    public void testDeleteUserAddressByAddressId_EmptyAddressId_ThrowsInvalidRequestDataException() {
+        try {
+            userAddressService.deleteUserAddressByAddressId(TestDataFactory.TEST_USER_ID, "");
+            Assertions.fail("Expected InvalidRequestDataException not thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Invalid null or empty address id", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception type thrown: " + ex.getClass().getName());
+        }
+    }
+
+    /**
+     * Test the deleteUserAddressByAddressId method throws an exception when the user address repository throws an
+     * Exception.
+     */
+    @Test
+    public void testDeleteUserAddressByAddressId_RepositoryException_ThrowsException() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+
+        // mock the user address repository response to throw an exception
+        Mockito.when(mockUserAddressRepository.deleteAddressById(
+            UUID.fromString(userId), UUID.fromString(addressId))
+        ).thenThrow(new RuntimeException("mock exception"));
+
+        try {
+            userAddressService.deleteUserAddressByAddressId(userId, addressId);
+            Assertions.fail("Expected Exception not thrown");
+        } catch (Exception ex) {
+            Assertions.assertEquals(
+                String.format("Error deleting user address for user id: %s, address id: %s", userId, addressId),
+                ex.getMessage()
+            );
+        }
+
+        // validate the repository call
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .deleteAddressById(UUID.fromString(userId), UUID.fromString(addressId));
+    }
 }

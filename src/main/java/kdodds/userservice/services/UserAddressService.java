@@ -124,8 +124,10 @@ public class UserAddressService {
 
             log.info("Deleted {} user address(es) for user id: {}", rowsImpacted, userId);
         } catch (Exception ex) {
-            log.error("Error deleting user address with id: {}", addressId, ex);
-            throw new Exception(String.format("Error deleting user address with id: %s", addressId));
+            log.error("Error deleting user address for user id: {}, address id: {}", userId, addressId, ex);
+            throw new Exception(
+                String.format("Error deleting user address for user id: %s, address id: %s", userId, addressId)
+            );
         }
     }
 
