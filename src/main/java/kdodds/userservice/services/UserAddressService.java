@@ -1,6 +1,7 @@
 package kdodds.userservice.services;
 
 import kdodds.userservice.dto.requests.CreateUserAddressRequestDto;
+import kdodds.userservice.dto.requests.PatchUserAddressRequestDto;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.entities.User;
@@ -192,6 +193,132 @@ public class UserAddressService {
             );
             throw new Exception(String.format("Error creating user address for user id: %s", userId), ex);
         }
+    }
+
+    /**
+     * Updates a user address by address id.
+     *
+     * @param userId The user id of the user who owns the address.
+     * @param addressId The address id of the address to update.
+     * @param request The PatchUserAddressRequestDto to use for the data.
+     * @return UserAddressResponseDto
+     * @throws Exception Throws an exception if the request is invalid or the attempt to update the user address fails.
+     */
+    public UserAddressResponseDto updateUserAddressById(
+        String userId,
+        String addressId,
+        PatchUserAddressRequestDto request
+    ) throws Exception {
+        if (userId == null || userId.isEmpty()) {
+            log.error("Cannot update user address with null or empty userId.");
+            throw new InvalidUserIdException();
+        }
+
+        if (addressId == null || addressId.isEmpty()) {
+            log.error("Cannot update user address with null or empty address id.");
+            throw new InvalidRequestDataException("Invalid null or empty address id");
+        }
+
+        if (request == null) {
+            log.error("Request body must be included in Patch User Address request");
+            throw new InvalidRequestDataException("Request body must be included in Patch User Address request");
+        }
+
+        // find the existing user address (throw if not found)
+        UserAddress address = userAddressRepository.findById(UUID.fromString(addressId))
+            .orElseThrow(() -> new UserAddressNotFound(
+                String.format("No user address found for address id %s", addressId)
+            ));
+
+        // need to validate that the address belongs to the user
+        if (!address.getUser().getId().equals(UUID.fromString(userId))) {
+            log.error("User address does not belong to user with id: {}", userId);
+            throw new UserAddressNotFound(
+                String.format("No user address found for address id %s", addressId)
+            );
+        }
+
+        // apply the updates
+        boolean updateNeeded = applyUpdates(request, address);
+
+        if (!updateNeeded) {
+            log.info("No changes detected for update user address with id: {}", addressId);
+            return UserAddressResponseDto.fromEntity(address);
+        }
+
+        // update required, set the updated at timestamp
+        address.setUpdatedAt(Instant.now());
+
+        try {
+            address = userAddressRepository.save(address);
+        } catch (Exception ex) {
+            log.error("Error updating user address for user id: {}, address id: {}", userId, addressId, ex);
+            throw new Exception(
+                String.format("Error updating user address for user id: %s, address id: %s", userId, addressId)
+            );
+        }
+
+        return UserAddressResponseDto.fromEntity(address);
+    }
+
+    private boolean applyUpdates(PatchUserAddressRequestDto request, UserAddress address) {
+        boolean updateNeeded = false;
+
+        // for all properties; only apply the update if the value is not null, empty, or the same as the existing value
+        if (request.getAddressType() != null
+            && !request.getAddressType().isEmpty()
+            && !request.getAddressType().equals(address.getAddressType())) {
+            address.setAddressType(request.getAddressType());
+            updateNeeded = true;
+        }
+
+        if (request.getAddressLine1() != null
+            && !request.getAddressLine1().isEmpty()
+            && !request.getAddressLine1().equals(address.getAddressLine1())) {
+            address.setAddressLine1(request.getAddressLine1());
+            updateNeeded = true;
+        }
+
+        // address line 2 can be set to empty (if value is empty, set to null on entity)
+        if (request.getAddressLine2() != null
+            && !request.getAddressLine2().equals(address.getAddressLine2())) {
+            if (request.getAddressLine2().isEmpty()) {
+                address.setAddressLine2(null);
+            } else {
+                address.setAddressLine2(request.getAddressLine2());
+            }
+            updateNeeded = true;
+        }
+
+        if (request.getCity() != null
+            && !request.getCity().isEmpty()
+            && !request.getCity().equals(address.getCity())) {
+            address.setCity(request.getCity());
+            updateNeeded = true;
+        }
+
+        if (request.getState() != null
+            && !request.getState().isEmpty()
+            && !request.getState().equals(address.getState())) {
+            address.setState(request.getState());
+            updateNeeded = true;
+        }
+
+        if (request.getZipCode() != null
+            && !request.getZipCode().isEmpty()
+            && !request.getZipCode().equals(address.getZipCode())) {
+            address.setZipCode(request.getZipCode());
+            updateNeeded = true;
+        }
+
+        if (request.getCountry() != null
+            && !request.getCountry().isEmpty()
+            && !request.getCountry().equals(address.getCountry())) {
+            address.setCountry(request.getCountry());
+            updateNeeded = true;
+        }
+
+        return updateNeeded;
     }
 
     private void validateCreateUserAddressRequest(CreateUserAddressRequestDto request) {

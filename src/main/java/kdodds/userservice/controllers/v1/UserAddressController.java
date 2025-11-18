@@ -3,6 +3,7 @@ package kdodds.userservice.controllers.v1;
 import kdodds.userservice.assemblers.UserAddressModelAssembler;
 import kdodds.userservice.assemblers.UserAddressesModelAssembler;
 import kdodds.userservice.dto.requests.CreateUserAddressRequestDto;
+import kdodds.userservice.dto.requests.PatchUserAddressRequestDto;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -128,6 +130,37 @@ public class UserAddressController {
         userAddressService.deleteUserAddressByAddressId(userId, addressId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    /**
+     * Update a user address by address id.
+     *
+     * @param userId The user id of the owning user.
+     * @param addressId The address id of the address to update.
+     * @param request The PatchUserAddressRequestDto to use for the data.
+     * @return UserAddressResponseDto wrapped in a ResponseEntity.
+     * @throws Exception Throws an exception if the request is invalid or attempt to update the user fails.
+     */
+    @PatchMapping("/{addressId}")
+    public ResponseEntity<EntityModel<UserAddressResponseDto>> updateUserAddressById(
+        @PathVariable String userId,
+        @PathVariable String addressId,
+        @RequestBody PatchUserAddressRequestDto request
+    ) throws Exception {
+        if (userId == null || userId.isEmpty()) {
+            throw new InvalidUserIdException();
+        }
+
+        if (addressId == null || addressId.isEmpty()) {
+            throw new InvalidRequestDataException("Invalid null or empty address id");
+        }
+
+        UserAddressResponseDto response = userAddressService.updateUserAddressById(userId, addressId, request);
+
+        return new ResponseEntity<>(
+            userAddressModelAssembler.toModel(response),
+            HttpStatus.OK
+        );
     }
 
 }
