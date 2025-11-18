@@ -175,8 +175,6 @@ public class TestDataFactory {
         UserProfile profile = TestDataFactory.createTestUserProfileEntity(userId);
         user.setUserProfile(profile);
 
-
-
         return user;
     }
 
@@ -311,10 +309,10 @@ public class TestDataFactory {
      */
     public static PatchUserRequestDto createPatchUserRequestDto() {
         return PatchUserRequestDto.builder()
-            .firstName(TestDataFactory.TEST_USER_FIRST_NAME)
-            .lastName(TestDataFactory.TEST_USER_LAST_NAME)
-            .phoneNumber(TestDataFactory.TEST_USER_PHONE_NUMBER)
-            .profileImageUrl(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL)
+            .firstName("updated_" + TestDataFactory.TEST_USER_FIRST_NAME)
+            .lastName("updated_" + TestDataFactory.TEST_USER_LAST_NAME)
+            .phoneNumber("updated_" + TestDataFactory.TEST_USER_PHONE_NUMBER)
+            .profileImageUrl("updated_" + TestDataFactory.TEST_USER_PROFILE_IMAGE_URL)
             .build();
     }
 

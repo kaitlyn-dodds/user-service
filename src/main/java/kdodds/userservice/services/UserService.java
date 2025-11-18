@@ -23,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -266,6 +267,9 @@ public class UserService {
             log.info("No changes detected for update user with id: {}", userId);
             return UserResponseDto.fromEntity(user);
         }
+
+        // set the updated at timestamp
+        user.setUpdatedAt(Instant.now());
 
         try {
             user = userRepository.save(user);
