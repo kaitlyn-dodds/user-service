@@ -1,8 +1,10 @@
 package kdodds.userservice.services;
 
 import kdodds.userservice.dto.requests.CreateUserAddressRequestDto;
+import kdodds.userservice.dto.requests.PatchUserAddressRequestDto;
 import kdodds.userservice.dto.responses.UserAddressResponseDto;
 import kdodds.userservice.dto.responses.UserAddressesResponseDto;
+import kdodds.userservice.entities.UserAddress;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.exceptions.models.exceptions.UserAddressNotFound;
@@ -20,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -780,4 +783,488 @@ public class UserAddressServiceTest {
         Mockito.verify(mockUserAddressRepository, Mockito.times(1))
             .deleteAddressById(UUID.fromString(userId), UUID.fromString(addressId));
     }
+
+    /**
+     * Test the updateUserAddressById method updates an address when the address exists and belongs to the
+     * given user.
+     */
+    @Test
+    public void testUpdateUserAddressById_ValidCompleteRequest_UpdatesAddress() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // mock the user address repository findById call
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            UserAddressResponseDto response = userAddressService.updateUserAddressById(userId, addressId, request);
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(addressId, response.getAddressId());
+            Assertions.assertEquals(userId, response.getUserId());
+            Assertions.assertEquals(mockAddress.getCreatedAt(), response.getCreatedAt());
+
+            // validate changed properties
+            Assertions.assertEquals(request.getAddressLine1(), response.getAddressLine1());
+            Assertions.assertEquals(request.getAddressLine2(), response.getAddressLine2());
+            Assertions.assertEquals(request.getCity(), response.getCity());
+            Assertions.assertEquals(request.getState(), response.getState());
+            Assertions.assertEquals(request.getZipCode(), response.getZipCode());
+            Assertions.assertEquals(request.getCountry(), response.getCountry());
+
+            // validate updatedAt timestamp is later than before
+            Assertions.assertTrue(response.getUpdatedAt().isAfter(originalUpdatedAt));
+
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .save(any());
+
+    }
+
+    /**
+     * Test the updateUserAddressById method updates the address type when the address exists and belongs to the given
+     * user and no other properties are set on the event.
+     */
+    @Test
+    public void testUpdateUserAddressById_ValidAddressTypeRequest_UpdatesAddress() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set all other properties on the request to null
+        request.setAddressLine1(null);
+        request.setAddressLine2(null);
+        request.setCity(null);
+        request.setState(null);
+        request.setZipCode(null);
+        request.setCountry(null);
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            UserAddressResponseDto response = userAddressService.updateUserAddressById(userId, addressId, request);
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(addressId, response.getAddressId());
+            Assertions.assertEquals(userId, response.getUserId());
+            Assertions.assertEquals(mockAddress.getCreatedAt(), response.getCreatedAt());
+
+            // validate changed properties
+            Assertions.assertEquals(request.getAddressType(), response.getAddressType());
+
+            // validate unchanged properties
+            Assertions.assertEquals(mockAddress.getAddressLine1(), response.getAddressLine1());
+            Assertions.assertEquals(mockAddress.getAddressLine2(), response.getAddressLine2());
+            Assertions.assertEquals(mockAddress.getCity(), response.getCity());
+            Assertions.assertEquals(mockAddress.getState(), response.getState());
+            Assertions.assertEquals(mockAddress.getZipCode(), response.getZipCode());
+            Assertions.assertEquals(mockAddress.getCountry(), response.getCountry());
+
+            // validate updatedAt timestamp is later than before
+            Assertions.assertTrue(response.getUpdatedAt().isAfter(originalUpdatedAt));
+
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById method updates the address line 1 when the address exists and belongs to the given
+     * user and no other properties are set on the event.
+     */
+    @Test
+    public void testUpdateUserAddressById_ValidAddressLine1Request_UpdatesAddress() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set all other properties on the request to null
+        request.setAddressType(null);
+        request.setAddressLine2(null);
+        request.setCity(null);
+        request.setState(null);
+        request.setZipCode(null);
+        request.setCountry(null);
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            UserAddressResponseDto response = userAddressService.updateUserAddressById(userId, addressId, request);
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(addressId, response.getAddressId());
+            Assertions.assertEquals(userId, response.getUserId());
+            Assertions.assertEquals(mockAddress.getCreatedAt(), response.getCreatedAt());
+
+            // validate changed properties
+            Assertions.assertEquals(request.getAddressLine1(), response.getAddressLine1());
+
+            // validate unchanged properties
+            Assertions.assertEquals(mockAddress.getAddressType(), response.getAddressType());
+            Assertions.assertEquals(mockAddress.getAddressLine2(), response.getAddressLine2());
+            Assertions.assertEquals(mockAddress.getCity(), response.getCity());
+            Assertions.assertEquals(mockAddress.getState(), response.getState());
+            Assertions.assertEquals(mockAddress.getZipCode(), response.getZipCode());
+            Assertions.assertEquals(mockAddress.getCountry(), response.getCountry());
+
+            // validate updatedAt timestamp is later than before
+            Assertions.assertTrue(response.getUpdatedAt().isAfter(originalUpdatedAt));
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById method updates the address line 2 when the address exists and belongs to the given
+     * user and no other properties are set on the event.
+     */
+    @Test
+    public void testUpdateUserAddressById_ValidAddressLine2Request_UpdatesAddress() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set address line 2
+        request.setAddressLine2("Suite 400");
+
+        // set all other properties on the request to null
+        request.setAddressType(null);
+        request.setAddressLine1(null);
+        request.setCity(null);
+        request.setState(null);
+        request.setZipCode(null);
+        request.setCountry(null);
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            UserAddressResponseDto response = userAddressService.updateUserAddressById(userId, addressId, request);
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(addressId, response.getAddressId());
+            Assertions.assertEquals(userId, response.getUserId());
+            Assertions.assertEquals(mockAddress.getCreatedAt(), response.getCreatedAt());
+
+            // validate changed properties
+            Assertions.assertEquals(request.getAddressLine2(), response.getAddressLine2());
+
+            // validate unchanged properties
+            Assertions.assertEquals(mockAddress.getAddressType(), response.getAddressType());
+            Assertions.assertEquals(mockAddress.getAddressLine1(), response.getAddressLine1());
+            Assertions.assertEquals(mockAddress.getCity(), response.getCity());
+            Assertions.assertEquals(mockAddress.getState(), response.getState());
+            Assertions.assertEquals(mockAddress.getZipCode(), response.getZipCode());
+            Assertions.assertEquals(mockAddress.getCountry(), response.getCountry());
+
+            // validate updatedAt timestamp is later than before
+            Assertions.assertTrue(response.getUpdatedAt().isAfter(originalUpdatedAt));
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById method updates the city when the address exists and belongs to the given user and
+     * no other properties are set on the event.
+     */
+    @Test
+    public void testUpdateUserAddressById_ValidCityRequest_UpdatesAddress() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set all other properties on the request to null
+        request.setAddressType(null);
+        request.setAddressLine1(null);
+        request.setAddressLine2(null);
+        request.setState(null);
+        request.setZipCode(null);
+        request.setCountry(null);
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            UserAddressResponseDto response = userAddressService.updateUserAddressById(userId, addressId, request);
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(addressId, response.getAddressId());
+            Assertions.assertEquals(userId, response.getUserId());
+            Assertions.assertEquals(mockAddress.getCreatedAt(), response.getCreatedAt());
+
+            // validate changed properties
+            Assertions.assertEquals(request.getCity(), response.getCity());
+
+            // validate unchanged properties
+            Assertions.assertEquals(mockAddress.getAddressType(), response.getAddressType());
+            Assertions.assertEquals(mockAddress.getAddressLine1(), response.getAddressLine1());
+            Assertions.assertEquals(mockAddress.getAddressLine2(), response.getAddressLine2());
+            Assertions.assertEquals(mockAddress.getState(), response.getState());
+            Assertions.assertEquals(mockAddress.getZipCode(), response.getZipCode());
+            Assertions.assertEquals(mockAddress.getCountry(), response.getCountry());
+
+            // validate updatedAt timestamp is later than before
+            Assertions.assertTrue(response.getUpdatedAt().isAfter(originalUpdatedAt));
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById method updates the state when the address exists and belongs to the given user and
+     * no other properties are set on the event.
+     */
+    @Test
+    public void testUpdateUserAddressById_ValidStateRequest_UpdatesAddress() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set all other properties on the request to null
+        request.setAddressType(null);
+        request.setAddressLine1(null);
+        request.setAddressLine2(null);
+        request.setCity(null);
+        request.setZipCode(null);
+        request.setCountry(null);
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            UserAddressResponseDto response = userAddressService.updateUserAddressById(userId, addressId, request);
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(addressId, response.getAddressId());
+            Assertions.assertEquals(userId, response.getUserId());
+            Assertions.assertEquals(mockAddress.getCreatedAt(), response.getCreatedAt());
+
+            // validate changed properties
+            Assertions.assertEquals(request.getState(), response.getState());
+
+            // validate unchanged properties
+            Assertions.assertEquals(mockAddress.getAddressType(), response.getAddressType());
+            Assertions.assertEquals(mockAddress.getAddressLine1(), response.getAddressLine1());
+            Assertions.assertEquals(mockAddress.getAddressLine2(), response.getAddressLine2());
+            Assertions.assertEquals(mockAddress.getCity(), response.getCity());
+            Assertions.assertEquals(mockAddress.getZipCode(), response.getZipCode());
+            Assertions.assertEquals(mockAddress.getCountry(), response.getCountry());
+
+            // validate updatedAt timestamp is later than before
+            Assertions.assertTrue(response.getUpdatedAt().isAfter(originalUpdatedAt));
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById method updates the zip code when the address exists and belongs to the given user
+     * and no other properties are set on the event.
+     */
+    @Test
+    public void testUpdateUserAddressById_ValidZipCodeRequest_UpdatesAddress() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set all other properties on the request to null
+        request.setAddressType(null);
+        request.setAddressLine1(null);
+        request.setAddressLine2(null);
+        request.setCity(null);
+        request.setState(null);
+        request.setCountry(null);
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            UserAddressResponseDto response = userAddressService.updateUserAddressById(userId, addressId, request);
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(addressId, response.getAddressId());
+            Assertions.assertEquals(userId, response.getUserId());
+            Assertions.assertEquals(mockAddress.getCreatedAt(), response.getCreatedAt());
+
+            // validate changed properties
+            Assertions.assertEquals(request.getZipCode(), response.getZipCode());
+
+            // validate unchanged properties
+            Assertions.assertEquals(mockAddress.getAddressType(), response.getAddressType());
+            Assertions.assertEquals(mockAddress.getAddressLine1(), response.getAddressLine1());
+            Assertions.assertEquals(mockAddress.getAddressLine2(), response.getAddressLine2());
+            Assertions.assertEquals(mockAddress.getCity(), response.getCity());
+            Assertions.assertEquals(mockAddress.getState(), response.getState());
+            Assertions.assertEquals(mockAddress.getCountry(), response.getCountry());
+
+            // validate updatedAt timestamp is later than before
+            Assertions.assertTrue(response.getUpdatedAt().isAfter(originalUpdatedAt));
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById method updates the country when the address exists and belongs to the given user
+     * and no other properties are set on the event.
+     */
+    @Test
+    public void testUpdateUserAddressById_ValidCountryRequest_UpdatesAddress() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set all other properties on the request to null
+        request.setAddressType(null);
+        request.setAddressLine1(null);
+        request.setAddressLine2(null);
+        request.setCity(null);
+        request.setState(null);
+        request.setZipCode(null);
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            UserAddressResponseDto response = userAddressService.updateUserAddressById(userId, addressId, request);
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(addressId, response.getAddressId());
+            Assertions.assertEquals(userId, response.getUserId());
+            Assertions.assertEquals(mockAddress.getCreatedAt(), response.getCreatedAt());
+
+            // validate changed properties
+            Assertions.assertEquals(request.getCountry(), response.getCountry());
+
+            // validate unchanged properties
+            Assertions.assertEquals(mockAddress.getAddressType(), response.getAddressType());
+            Assertions.assertEquals(mockAddress.getAddressLine1(), response.getAddressLine1());
+            Assertions.assertEquals(mockAddress.getAddressLine2(), response.getAddressLine2());
+            Assertions.assertEquals(mockAddress.getCity(), response.getCity());
+            Assertions.assertEquals(mockAddress.getState(), response.getState());
+            Assertions.assertEquals(mockAddress.getZipCode(), response.getZipCode());
+
+            // validate updatedAt timestamp is later than before
+            Assertions.assertTrue(response.getUpdatedAt().isAfter(originalUpdatedAt));
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .save(any());
+    }
+
 }

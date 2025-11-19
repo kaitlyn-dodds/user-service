@@ -2,6 +2,7 @@ package kdodds.userservice.utils;
 
 import kdodds.userservice.dto.requests.CreateUserAddressRequestDto;
 import kdodds.userservice.dto.requests.CreateUserRequestDto;
+import kdodds.userservice.dto.requests.PatchUserAddressRequestDto;
 import kdodds.userservice.dto.requests.PatchUserRequestDto;
 import kdodds.userservice.dto.requests.UserAddressRequestDto;
 import kdodds.userservice.dto.responses.PageDto;
@@ -89,8 +90,8 @@ public class TestDataFactory {
             .addresses(List.of(
                 TestDataFactory.createTestUserAddressDto(userId)
             ))
-            .createdAt(Instant.now())
-            .updatedAt(Instant.now())
+            .createdAt(Instant.now().minusSeconds(10))
+            .updatedAt(Instant.now().minusSeconds(10))
             .build();
     }
 
@@ -107,8 +108,8 @@ public class TestDataFactory {
             .lastName(TestDataFactory.TEST_USER_LAST_NAME)
             .phoneNumber(TestDataFactory.TEST_USER_PHONE_NUMBER)
             .profileImageUrl(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL)
-            .createdAt(Instant.now())
-            .updatedAt(Instant.now())
+            .createdAt(Instant.now().minusSeconds(10))
+            .updatedAt(Instant.now().minusSeconds(10))
             .build();
     }
 
@@ -140,8 +141,8 @@ public class TestDataFactory {
             .state(TestDataFactory.TEST_USER_STATE)
             .zipCode(TestDataFactory.TEST_USER_ZIP_CODE)
             .country(TestDataFactory.TEST_USER_COUNTRY)
-            .createdAt(Instant.now())
-            .updatedAt(Instant.now())
+            .createdAt(Instant.now().minusSeconds(10))
+            .updatedAt(Instant.now().minusSeconds(10))
             .build();
     }
 
@@ -156,8 +157,8 @@ public class TestDataFactory {
         user.setEmail(TestDataFactory.TEST_USER_EMAIL);
         user.setPasswordHash(TestDataFactory.TEST_USER_PASSWORD);
         user.setStatus("ACTIVE");
-        user.setCreatedAt(Instant.now());
-        user.setUpdatedAt(Instant.now());
+        user.setCreatedAt(Instant.now().minusSeconds(10));
+        user.setUpdatedAt(Instant.now().minusSeconds(10));
 
         // Addresses
         List<UserAddress> addresses = new ArrayList<>();
@@ -189,8 +190,8 @@ public class TestDataFactory {
         profile.setLastName(TestDataFactory.TEST_USER_LAST_NAME);
         profile.setPhoneNumber(TestDataFactory.TEST_USER_PHONE_NUMBER);
         profile.setProfileImageUrl(TestDataFactory.TEST_USER_PROFILE_IMAGE_URL);
-        profile.setCreatedAt(Instant.now());
-        profile.setUpdatedAt(Instant.now());
+        profile.setCreatedAt(Instant.now().minusSeconds(10));
+        profile.setUpdatedAt(Instant.now().minusSeconds(10));
 
         return profile;
     }
@@ -208,8 +209,10 @@ public class TestDataFactory {
         address.setState(TestDataFactory.TEST_USER_STATE);
         address.setZipCode(TestDataFactory.TEST_USER_ZIP_CODE);
         address.setCountry(TestDataFactory.TEST_USER_COUNTRY);
-        address.setCreatedAt(Instant.now());
-        address.setUpdatedAt(Instant.now());
+
+        // timestamps should be now - 10 seconds (to avoid test issues)
+        address.setCreatedAt(Instant.now().minusSeconds(10));
+        address.setUpdatedAt(Instant.now().minusSeconds(10));
 
         // set user on address (necessary for mapper functions)
         address.setUser(TestDataFactory.createTestUserEntity(userId, false));
@@ -313,6 +316,22 @@ public class TestDataFactory {
             .lastName("updated_" + TestDataFactory.TEST_USER_LAST_NAME)
             .phoneNumber("updated_" + TestDataFactory.TEST_USER_PHONE_NUMBER)
             .profileImageUrl("updated_" + TestDataFactory.TEST_USER_PROFILE_IMAGE_URL)
+            .build();
+    }
+
+    /**
+     * Create a test PatchUserAddressRequestDto.
+     *
+     * @return PatchUserAddressRequestDto
+     */
+    public static PatchUserAddressRequestDto createPatchUserAddressRequestDto() {
+        return PatchUserAddressRequestDto.builder()
+            .addressLine1("updated_" + TestDataFactory.TEST_USER_ADDRESS_LINE_1)
+            .city("updated_" + TestDataFactory.TEST_USER_CITY)
+            .state("updated_" + TestDataFactory.TEST_USER_STATE)
+            .zipCode("updated_" + TestDataFactory.TEST_USER_ZIP_CODE)
+            .country("updated_" + TestDataFactory.TEST_USER_COUNTRY)
+            .addressType("updated_" + TestDataFactory.TEST_USER_ADDRESS_TYPE)
             .build();
     }
 
