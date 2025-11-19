@@ -266,15 +266,19 @@ public class UserAddressService {
 
         // for all properties; only apply the update if the value is not null, empty, or the same as the existing value
         if (request.getAddressType() != null
-            && !request.getAddressType().isEmpty()
             && !request.getAddressType().equals(address.getAddressType())) {
+            if (request.getAddressType().isEmpty()) {
+                throw new InvalidRequestDataException("Address type cannot be empty");
+            }
             address.setAddressType(request.getAddressType());
             updateNeeded = true;
         }
 
         if (request.getAddressLine1() != null
-            && !request.getAddressLine1().isEmpty()
             && !request.getAddressLine1().equals(address.getAddressLine1())) {
+            if (request.getAddressLine1().isEmpty()) {
+                throw new InvalidRequestDataException("Address line 1 cannot be empty");
+            }
             address.setAddressLine1(request.getAddressLine1());
             updateNeeded = true;
         }
@@ -291,29 +295,37 @@ public class UserAddressService {
         }
 
         if (request.getCity() != null
-            && !request.getCity().isEmpty()
             && !request.getCity().equals(address.getCity())) {
+            if (request.getCity().isEmpty()) {
+                throw new InvalidRequestDataException("City cannot be empty");
+            }
             address.setCity(request.getCity());
             updateNeeded = true;
         }
 
         if (request.getState() != null
-            && !request.getState().isEmpty()
             && !request.getState().equals(address.getState())) {
+            if (request.getState().isEmpty()) {
+                throw new InvalidRequestDataException("State cannot be empty");
+            }
             address.setState(request.getState());
             updateNeeded = true;
         }
 
         if (request.getZipCode() != null
-            && !request.getZipCode().isEmpty()
             && !request.getZipCode().equals(address.getZipCode())) {
+            if (request.getZipCode().isEmpty()) {
+                throw new InvalidRequestDataException("Zip code cannot be empty");
+            }
             address.setZipCode(request.getZipCode());
             updateNeeded = true;
         }
 
         if (request.getCountry() != null
-            && !request.getCountry().isEmpty()
             && !request.getCountry().equals(address.getCountry())) {
+            if (request.getCountry().isEmpty()) {
+                throw new InvalidRequestDataException("Country cannot be empty");
+            }
             address.setCountry(request.getCountry());
             updateNeeded = true;
         }

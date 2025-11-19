@@ -1267,4 +1267,341 @@ public class UserAddressServiceTest {
             .save(any());
     }
 
+    /**
+     * Test the updateUserAddressById does not allow address type to be set to an empty string.
+     */
+    @Test
+    public void testUpdateUserAddressById_EmptyAddressType_InvalidRequest() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set address type on the request to empty
+        request.setAddressType("");
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            userAddressService.updateUserAddressById(userId, addressId, request);
+            Assertions.fail("Expected an InvalidRequestDataException to be thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Address type cannot be empty", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.never())
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById does not allow address line 1 to be set to an empty string.
+     */
+    @Test
+    public void testUpdateUserAddressById_EmptyAddressLine1_InvalidRequest() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set address line 1 on the request to empty
+        request.setAddressLine1("");
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            userAddressService.updateUserAddressById(userId, addressId, request);
+            Assertions.fail("Expected an InvalidRequestDataException to be thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Address line 1 cannot be empty", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.never())
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById does not allow city to be set to an empty string.
+     */
+    @Test
+    public void testUpdateUserAddressById_EmptyCity_InvalidRequest() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set city on the request to empty
+        request.setCity("");
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            userAddressService.updateUserAddressById(userId, addressId, request);
+            Assertions.fail("Expected an InvalidRequestDataException to be thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("City cannot be empty", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.never())
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById does not allow state to be set to an empty string.
+     */
+    @Test
+    public void testUpdateUserAddressById_EmptyState_InvalidRequest() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set state on the request to empty
+        request.setState("");
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            userAddressService.updateUserAddressById(userId, addressId, request);
+            Assertions.fail("Expected an InvalidRequestDataException to be thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("State cannot be empty", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.never())
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById does not allow zip code to be set to an empty string.
+     */
+    @Test
+    public void testUpdateUserAddressById_EmptyZipCode_InvalidRequest() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set zip code on the request to empty
+        request.setZipCode("");
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            userAddressService.updateUserAddressById(userId, addressId, request);
+            Assertions.fail("Expected an InvalidRequestDataException to be thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Zip code cannot be empty", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.never())
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById method does not allow country to be set to an empty string.
+     */
+    @Test
+    public void testUpdateUserAddressById_EmptyCountry_InvalidRequest() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set country on the request to empty
+        request.setCountry("");
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        // mock the user address repository save call
+        Mockito.when(mockUserAddressRepository.save(any()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+
+        try {
+            userAddressService.updateUserAddressById(userId, addressId, request);
+            Assertions.fail("Expected an InvalidRequestDataException to be thrown");
+        } catch (InvalidRequestDataException ex) {
+            Assertions.assertEquals("Country cannot be empty", ex.getMessage());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.never())
+            .save(any());
+    }
+
+    /**
+     * Test the updateUserAddressById method throws AddressNotFoundException when the address does not exist.
+     */
+    @Test
+    public void testUpdateUserAddressById_AddressNotFound_ThrowsAddressNotFoundException() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // mock the user address repo findById call returns empty optional
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.empty());
+
+        try {
+            userAddressService.updateUserAddressById(userId, addressId, request);
+            Assertions.fail("Expected an AddressNotFoundException to be thrown");
+        } catch (UserAddressNotFound ex) {
+            Assertions.assertEquals(
+                String.format("No user address found for address id %s", addressId), ex.getMessage()
+            );
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the updateUserAddressById method throws UserAddressNotFoundException when the address does not belong to
+     * the given user.
+     */
+    @Test
+    public void testUpdateUserAddressById_AddressDoesNotBelongToUser_ThrowsUserAddressNotFoundException() {
+        String userId = TestDataFactory.generateRandomUuid();
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(TestDataFactory.TEST_USER_ID);
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        try {
+            userAddressService.updateUserAddressById(userId, addressId, request);
+            Assertions.fail("Expected an UserAddressNotFoundException to be thrown");
+        } catch (UserAddressNotFound ex) {
+            Assertions.assertEquals(
+                String.format("No user address found for address id %s", addressId), ex.getMessage()
+            );
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test the updateUserAddressById method does not call the database when no changes need to be saved.
+     */
+    @Test
+    public void testUpdateUserAddressById_NoChangesNeeded_DoesNotUpdateAddress() {
+        String userId = TestDataFactory.TEST_USER_ID;
+        PatchUserAddressRequestDto request = TestDataFactory.createPatchUserAddressRequestDto();
+        UserAddress mockAddress = TestDataFactory.createTestUserAddressEntity(userId);
+        Instant originalUpdatedAt = mockAddress.getUpdatedAt();
+
+        // set the request to the same as the existing address
+        request.setAddressType(mockAddress.getAddressType());
+        request.setAddressLine1(mockAddress.getAddressLine1());
+        request.setAddressLine2(mockAddress.getAddressLine2());
+        request.setCity(mockAddress.getCity());
+        request.setState(mockAddress.getState());
+        request.setZipCode(mockAddress.getZipCode());
+        request.setCountry(mockAddress.getCountry());
+
+        // mock the user address repository findById call
+        String addressId = TestDataFactory.TEST_ADDRESS_ID_1;
+        Mockito.when(mockUserAddressRepository.findById(UUID.fromString(addressId)))
+            .thenReturn(Optional.of(mockAddress));
+
+        try {
+            UserAddressResponseDto response = userAddressService.updateUserAddressById(userId, addressId, request);
+
+            // validate response
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(addressId, response.getAddressId());
+            Assertions.assertEquals(userId, response.getUserId());
+            Assertions.assertEquals(mockAddress.getCreatedAt(), response.getCreatedAt());
+
+            // validate unchanged properties
+            Assertions.assertEquals(mockAddress.getAddressType(), response.getAddressType());
+            Assertions.assertEquals(mockAddress.getAddressLine1(), response.getAddressLine1());
+            Assertions.assertEquals(mockAddress.getAddressLine2(), response.getAddressLine2());
+            Assertions.assertEquals(mockAddress.getCity(), response.getCity());
+            Assertions.assertEquals(mockAddress.getZipCode(), response.getZipCode());
+            Assertions.assertEquals(mockAddress.getCity(), response.getCity());
+            Assertions.assertEquals(mockAddress.getCountry(), response.getCountry());
+
+            // validate updatedAt timestamp has not changed
+            Assertions.assertEquals(originalUpdatedAt, response.getUpdatedAt());
+        } catch (Exception ex) {
+            Assertions.fail("Unexpected exception thrown: " + ex.getMessage());
+        }
+
+        // validate the repository calls
+        Mockito.verify(mockUserAddressRepository, Mockito.times(1))
+            .findById(UUID.fromString(addressId));
+        Mockito.verify(mockUserAddressRepository, Mockito.never())
+            .save(any());
+    }
+
 }
