@@ -6,10 +6,13 @@ import kdodds.userservice.dto.requests.CreateUserRequestDto;
 import kdodds.userservice.dto.requests.PatchUserRequestDto;
 import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
+import kdodds.userservice.entities.User;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
+import kdodds.userservice.repositories.specifications.UserSpecification;
 import kdodds.userservice.services.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +47,13 @@ public class UserController {
     @GetMapping()
     public ResponseEntity<EntityModel<PagedUsersResponseDto>> getAllUsersPaginated(
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String username
     ) throws Exception {
-        PagedUsersResponseDto response = userService.getAllUsersPaginated(page, size);
+        // build the UserSpecification
+        Specification<User> spec = UserSpecification.build(username);
+
+        PagedUsersResponseDto response = userService.getAllUsersPaginated(page, size, spec);
 
         return new ResponseEntity<>(
             pagedUsersModelAssembler.toModel(response),

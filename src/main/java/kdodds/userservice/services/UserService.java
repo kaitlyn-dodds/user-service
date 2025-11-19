@@ -21,6 +21,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -40,14 +41,14 @@ public class UserService {
     /**
      * Gets all users, paginated.
      */
-    public PagedUsersResponseDto getAllUsersPaginated(int page, int size) {
+    public PagedUsersResponseDto getAllUsersPaginated(int page, int size, Specification<User> spec) {
         // create Pageable objects from provided page and size
         Pageable pageable = PageRequest.of(page, size);
 
         // get all users from the repository
         Page<User> userPage;
         try {
-            userPage = userRepository.findAll(pageable);
+            userPage = userRepository.findAll(spec, pageable);
         } catch (Exception ex) {
             log.error("Error getting all users paged: {}", ex.getMessage());
             throw new RuntimeException(ex);

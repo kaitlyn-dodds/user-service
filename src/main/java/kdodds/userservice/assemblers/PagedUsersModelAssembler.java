@@ -50,7 +50,8 @@ public class PagedUsersModelAssembler
             pagedUsersDto.add(linkTo(methodOn(UserController.class)
                 .getAllUsersPaginated(
                     pagedUsersDto.getPage().getPage(),
-                    pagedUsersDto.getPage().getSize()
+                    pagedUsersDto.getPage().getSize(),
+                    null
                 )).withSelfRel());
 
             // next (not on last page)
@@ -58,7 +59,8 @@ public class PagedUsersModelAssembler
                 pagedUsersDto.add(linkTo(methodOn(UserController.class)
                     .getAllUsersPaginated(
                         pagedUsersDto.getPage().getPage() + 1,
-                        pagedUsersDto.getPage().getSize()
+                        pagedUsersDto.getPage().getSize(),
+                        null
                     )).withRel("next"));
             }
 
@@ -67,7 +69,8 @@ public class PagedUsersModelAssembler
                 pagedUsersDto.add(linkTo(methodOn(UserController.class)
                     .getAllUsersPaginated(
                         pagedUsersDto.getPage().getPage() - 1,
-                        pagedUsersDto.getPage().getSize()
+                        pagedUsersDto.getPage().getSize(),
+                        null
                     )).withRel("prev"));
             }
 
@@ -76,7 +79,8 @@ public class PagedUsersModelAssembler
                 pagedUsersDto.add(linkTo(methodOn(UserController.class)
                     .getAllUsersPaginated(
                         0,
-                        pagedUsersDto.getPage().getSize()
+                        pagedUsersDto.getPage().getSize(),
+                        null
                     )).withRel("first"));
             }
 
@@ -86,7 +90,8 @@ public class PagedUsersModelAssembler
                 pagedUsersDto.add(linkTo(methodOn(UserController.class)
                     .getAllUsersPaginated(
                         pagedUsersDto.getPage().getTotalPages() - 1,
-                        pagedUsersDto.getPage().getSize()
+                        pagedUsersDto.getPage().getSize(),
+                        null
                     )).withRel("last"));
             }
         } catch (Exception e) {

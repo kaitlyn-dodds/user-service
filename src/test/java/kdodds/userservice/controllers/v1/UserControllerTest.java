@@ -6,6 +6,7 @@ import kdodds.userservice.dto.requests.CreateUserRequestDto;
 import kdodds.userservice.dto.requests.PatchUserRequestDto;
 import kdodds.userservice.dto.responses.PagedUsersResponseDto;
 import kdodds.userservice.dto.responses.UserResponseDto;
+import kdodds.userservice.entities.User;
 import kdodds.userservice.exceptions.models.exceptions.InvalidRequestDataException;
 import kdodds.userservice.exceptions.models.exceptions.InvalidUserIdException;
 import kdodds.userservice.exceptions.models.exceptions.UserConflictException;
@@ -14,16 +15,21 @@ import kdodds.userservice.utils.TestDataFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Instant;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -53,14 +59,14 @@ public class UserControllerTest {
         );
 
         // mock the user model assembler to just return the input wrapped in an EntityModel
-        Mockito.when(mockUserModelAssembler.toModel(Mockito.any(UserResponseDto.class)))
+        Mockito.when(mockUserModelAssembler.toModel(any(UserResponseDto.class)))
             .thenAnswer(invocation -> {
                 UserResponseDto argUserDto = invocation.getArgument(0);
                 return EntityModel.of(argUserDto);
             });
 
         // mock the paged users model assembler to return the input wrapped in an EntityModel
-        Mockito.when(mockPagedUsersModelAssembler.toModel(Mockito.any(PagedUsersResponseDto.class)))
+        Mockito.when(mockPagedUsersModelAssembler.toModel(any(PagedUsersResponseDto.class)))
             .thenAnswer(invocation -> {
                 PagedUsersResponseDto argPagedUsersDto = invocation.getArgument(0);
                 return EntityModel.of(argPagedUsersDto);
@@ -78,14 +84,17 @@ public class UserControllerTest {
         int totalElements = 1;
 
         // mock the service call
-        Mockito.when(mockUserService.getAllUsersPaginated(page, size)).thenReturn(
-            TestDataFactory.createTestPagedUsersResponseDto(
-                List.of(TestDataFactory.createTestUserResponseDto(TestDataFactory.TEST_USER_ID)),
-                TestDataFactory.createTestPageDto(page, size, totalPages, totalElements)
-            )
-        );
+        Mockito.when(
+            mockUserService.getAllUsersPaginated(eq(page), eq(size), ArgumentMatchers.<Specification<User>>any()))
+                .thenReturn(
+                    TestDataFactory.createTestPagedUsersResponseDto(
+                        List.of(TestDataFactory.createTestUserResponseDto(TestDataFactory.TEST_USER_ID)),
+                        TestDataFactory.createTestPageDto(page, size, totalPages, totalElements)
+                    )
+            );
 
-        ResponseEntity<EntityModel<PagedUsersResponseDto>> response = userController.getAllUsersPaginated(page, size);
+        ResponseEntity<EntityModel<PagedUsersResponseDto>> response =
+            userController.getAllUsersPaginated(page, size, null);
 
         // validate response
         Assertions.assertNotNull(response);
