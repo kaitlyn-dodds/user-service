@@ -48,10 +48,20 @@ public class UserController {
     public ResponseEntity<EntityModel<PagedUsersResponseDto>> getAllUsersPaginated(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
-        @RequestParam(required = false) String username
+        @RequestParam(required = false) String username,
+        @RequestParam(required = false) String email,
+        @RequestParam(required = false) String firstName,
+        @RequestParam(required = false) String lastName,
+        @RequestParam(required = false) String status
     ) throws Exception {
         // build the UserSpecification
-        Specification<User> spec = UserSpecification.build(username);
+        Specification<User> spec = UserSpecification.build(
+            username,
+            email,
+            firstName,
+            lastName,
+            status
+        );
 
         PagedUsersResponseDto response = userService.getAllUsersPaginated(page, size, spec);
 

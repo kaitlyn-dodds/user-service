@@ -46,7 +46,9 @@ public class UserModelAssembler
             userDto.add(linkTo(methodOn(UserAddressController.class) // addresses
                 .getUserAddressesByUserId(userDto.getUserId())).withRel("addresses"));
             userDto.add(linkTo(methodOn(UserController.class)
-                .getAllUsersPaginated(0, 0, null)).withRel("collection"));
+                .getAllUsersPaginated(
+                    0, 0, null, null, null, null, null)
+            ).withRel("collection"));
         } catch (Exception e) {
             log.error("Error creating links for UserResponseDto: {}", e.getMessage());
             throw new RuntimeException(e);

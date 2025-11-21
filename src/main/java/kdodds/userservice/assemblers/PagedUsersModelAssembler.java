@@ -51,6 +51,10 @@ public class PagedUsersModelAssembler
                 .getAllUsersPaginated(
                     pagedUsersDto.getPage().getPage(),
                     pagedUsersDto.getPage().getSize(),
+                    null,
+                    null,
+                    null,
+                    null,
                     null
                 )).withSelfRel());
 
@@ -60,6 +64,10 @@ public class PagedUsersModelAssembler
                     .getAllUsersPaginated(
                         pagedUsersDto.getPage().getPage() + 1,
                         pagedUsersDto.getPage().getSize(),
+                        null,
+                        null,
+                        null,
+                        null,
                         null
                     )).withRel("next"));
             }
@@ -70,6 +78,10 @@ public class PagedUsersModelAssembler
                     .getAllUsersPaginated(
                         pagedUsersDto.getPage().getPage() - 1,
                         pagedUsersDto.getPage().getSize(),
+                        null,
+                        null,
+                        null,
+                        null,
                         null
                     )).withRel("prev"));
             }
@@ -80,6 +92,10 @@ public class PagedUsersModelAssembler
                     .getAllUsersPaginated(
                         0,
                         pagedUsersDto.getPage().getSize(),
+                        null,
+                        null,
+                        null,
+                        null,
                         null
                     )).withRel("first"));
             }
@@ -91,6 +107,10 @@ public class PagedUsersModelAssembler
                     .getAllUsersPaginated(
                         pagedUsersDto.getPage().getTotalPages() - 1,
                         pagedUsersDto.getPage().getSize(),
+                        null,
+                        null,
+                        null,
+                        null,
                         null
                     )).withRel("last"));
             }

@@ -94,7 +94,15 @@ public class UserControllerTest {
             );
 
         ResponseEntity<EntityModel<PagedUsersResponseDto>> response =
-            userController.getAllUsersPaginated(page, size, null);
+            userController.getAllUsersPaginated(
+                page,
+                size,
+                null,
+                null,
+                null,
+                null,
+                null
+            );
 
         // validate response
         Assertions.assertNotNull(response);
